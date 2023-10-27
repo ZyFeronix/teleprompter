@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TelePrompter</title>
+  <style>
+    body {
+      background-color: #222;
+      color: #FFF;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #teleprompter-container {
+      width: 80%;
+      max-height: 60vh;
+      overflow-y: scroll;
+      background-color: #333;
+      color: #FFF;
+      border: 2px solid #009688;
+      padding: 20px;
+      text-align: justify;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    #teleprompter {
+      font-size: 28px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    #controls {
+      width: 80%;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    #text-options {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    #text-choice-label {
+      color: #009688;
+      margin-right: 10px;
+    }
+
+    #textChoice {
+      background-color: #333;
+      color: #FFF;
+      border: 2px solid #009688;
+      border-radius: 5px;
+      padding: 10px;
+    }
+
+    #manualText {
+      width: 100%;
+      height: 100px;
+      background-color: #333;
+      color: #FFF;
+      border: 2px solid #009688;
+      border-radius: 5px;
+      padding: 10px;
+      display: none;
+    }
+
+    button {
+      background-color: #009688;
+      color: #FFF;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .file-upload-label {
+      background-color: #009688;
+      color: #FFF;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div id="text-options">
+    <label id="text-choice-label" for="textChoice">Seleccionar modo: </label>
+    <select id="textChoice">
+      <option value="file">Texto cargado por archivo</option>
+      <option value="manual">Texto escrito manualmente</option>
+    </select>
+  </div>
+
+  <textarea id="manualText" style="max-width: 81.5%; margin: 0 auto;"></textarea>
+  <input type="file" id="fileInput" accept=".txt" style="position: absolute; left: -9999px;">
+  <label for="fileInput" class="file-upload-label">Cargar Archivo de Texto</label>
+  <br />
+  <div id="teleprompter-container">
+    <div id="teleprompter"></div>
+  </div>
+  <div id="controls">
+    <button id="clearButton">Limpiar</button>
+    <button id="startButton" disabled>Iniciar</button>
+    <button id="stopButton" disabled>Detener</button>
+    <button id="fasterButton">+</button>
+    <button id="slowerButton">-</button>
+    <button id="fullscreenButton">Fullscreen</button>
+  </div>
+
+  <script>
+    const textChoice = document.getElementById('textChoice');
+    const manualText = document.getElementById('manualText');
+    const fileInput = document.getElementById('fileInput');
+    const startButton = document.getElementById('startButton');
+    const stopButton = document.getElementById('stopButton');
+    const fasterButton = document.getElementById('fasterButton');
+    const slowerButton = document.getElementById('slowerButton');
+    const clearButton = document.getElementById('clearButton');
+    const fullscreenButton = document.getElementById('fullscreenButton');
+    const teleprompter = document.getElementById('teleprompter');
+
+    let sentences;
+    let currentIndex = 0;
+    let currentSentence = '';
+    let currentCharIndex = 0;
+    let timer;
+    let speed = 200;
+
+    function splitText(text) {
+      return text.split('.').filter(sentence => sentence.trim() !== '');
+    }
+
+    function loadTextFromFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const fileContent = e.target.result;
+        sentences = splitText(fileContent);
+        startButton.disabled = false;
+      };
+      reader.readAsText(file);
+    }
+
+    textChoice.addEventListener('change', function() {
+      if (textChoice.value === 'manual') {
+        manualText.style.display = 'block';
+        fileInput.style.display = 'none';
+        document.querySelector('.file-upload-label').style.display = 'none';
+      } else {
+        manualText.style.display = 'none';
+        fileInput.style.display = 'block';
+        document.querySelector('.file-upload-label').style.display = 'block';
+      }
+    });
+
+    manualText.addEventListener('input', function() {
+      sentences = splitText(manualText.value);
+      startButton.disabled = false;
+    });
+
+    fileInput.addEventListener('change', function() {
+      const file = this.files[0];
+      loadTextFromFile(file);
+    });
+
+    startButton.addEventListener('click', () => {
+      startButton.disabled = true;
+      stopButton.disabled = false;
+      teleprompter.innerHTML = '';
+
+      function updateText() {
+        if (currentIndex < sentences.length) {
+          if (currentCharIndex < sentences[currentIndex].length) {
+            const char = sentences[currentIndex][currentCharIndex];
+
+            if (char.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/)) {
+              currentSentence += char;
+            } else {
+              currentSentence += twemoji.parse(char);
+            }
+
+            teleprompter.innerHTML = currentSentence;
+            currentCharIndex++;
+          } else {
+            currentIndex++;
+            currentCharIndex = 0;
+            currentSentence = '';
+          }
+
+          teleprompter.scrollTop = teleprompter.scrollHeight;
+          timer = setTimeout(updateText, speed);
+        }
+      }
+
+      updateText();
+    });
+
+    stopButton.addEventListener('click', () => {
+      clearTimeout(timer);
+      startButton.disabled = false;
+      stopButton.disabled = true;
+      currentIndex = 0;
+      currentCharIndex = 0;
+      currentSentence = '';
+    });
+
+    fasterButton.addEventListener('click', () => {
+      speed -= 50;
+      if (speed < 50) {
+        speed = 50;
+      }
+    });
+
+    slowerButton.addEventListener('click', () => {
+      speed += 50;
+    });
+
+    clearButton.addEventListener('click', () => {
+      clearTimeout(timer);
+      startButton.disabled = false;
+      stopButton.disabled = true;
+      currentIndex = 0;
+      currentCharIndex = 0;
+      currentSentence = '';
+      teleprompter.innerHTML = '';
+    });
+
+    fullscreenButton.addEventListener('click', () => {
+      if (document.documentElement.requestFullscreen) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          document.documentElement.requestFullscreen();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
