@@ -114,12 +114,14 @@
   <div id="controls">
     <button id="clearButton">Limpiar</button>
     <button id="startButton" disabled>Iniciar</button>
+    <button id="pauseButton" disabled>Pausar</button>
     <button id="stopButton" disabled>Detener</button>
     <button id="fasterButton">+</button>
     <button id="slowerButton">-</button>
     <button id="fullscreenButton">Fullscreen</button>
   </div>
-
+  <br />
+  <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/vit2bit/teleprompter">HTML TelePrompter</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://vit2bit.live">ViT2BiT Labs</a> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">BY-NC-ND 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
   <script>
     const textChoice = document.getElementById('textChoice');
     const manualText = document.getElementById('manualText');
@@ -131,13 +133,26 @@
     const clearButton = document.getElementById('clearButton');
     const fullscreenButton = document.getElementById('fullscreenButton');
     const teleprompter = document.getElementById('teleprompter');
+    const pauseButton = document.getElementById('pauseButton');
 
+    let isPaused = false;
     let sentences;
     let currentIndex = 0;
     let currentSentence = '';
     let currentCharIndex = 0;
     let timer;
     let speed = 200;
+
+    pauseButton.addEventListener('click', () => {
+      isPaused = !isPaused;
+      if (isPaused) {
+        clearTimeout(timer);
+        pauseButton.innerText = 'Reanudar';
+      } else {
+        updateText();
+        pauseButton.innerText = 'Pausa';
+      }
+    });
 
     function splitText(text) {
       return text.split('.').filter(sentence => sentence.trim() !== '');
@@ -206,6 +221,7 @@
 
       updateText();
     });
+
 
     stopButton.addEventListener('click', () => {
       clearTimeout(timer);
