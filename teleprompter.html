@@ -1,266 +1,806 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TelePrompter</title>
-  <style>
-    body {
-      background-color: #222;
-      color: #FFF;
-      font-family: 'JetBrains Mono', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Teleprompter Pro - Herramienta Profesional</title>
+    <style>
+        :root {
+            --primary: #2196F3;
+            --background: #F5F5F5;
+            --surface: #FFFFFF;
+            --text-primary: #333333;
+            --text-secondary: #757575;
+            --border-radius: 16px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.1);
+            --control-height: 60px;
+        }
 
-    #teleprompter-container {
-      width: 80%;
-      max-height: 60vh;
-      overflow-y: scroll;
-      background-color: #333;
-      color: #FFF;
-      border: 2px solid #009688;
-      padding: 20px;
-      text-align: justify;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-    #teleprompter {
-      font-size: 28px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
+        body {
+            background: var(--background);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
 
-    #controls {
-      width: 80%;
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-    }
+        .header {
+            background: var(--surface);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 100;
+        }
 
-    #text-options {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 10px;
-    }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-    #text-choice-label {
-      color: #009688;
-      margin-right: 10px;
-    }
+        .logo h1 {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
 
-    #textChoice {
-      background-color: #333;
-      color: #FFF;
-      border: 2px solid #009688;
-      border-radius: 5px;
-      padding: 10px;
-    }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            gap: 1rem;
+            overflow: hidden;
+        }
 
-    #manualText {
-      width: 100%;
-      height: 100px;
-      background-color: #333;
-      color: #FFF;
-      border: 2px solid #009688;
-      border-radius: 5px;
-      padding: 10px;
-      display: none;
-    }
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow: hidden;
+        }
 
-    button {
-      background-color: #009688;
-      color: #FFF;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
+        .editor-panel {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-height: 200px;
+        }
 
-    .file-upload-label {
-      background-color: #009688;
-      color: #FFF;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-  </style>
-  <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+        .teleprompter-panel {
+            flex: 1;
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #teleprompter {
+            font-size: 3rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-weight: 400;
+            color: var(--text-primary);
+            text-align: center;
+            min-height: 100%;
+            position: relative;
+            padding: 2rem;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: rgba(0,0,0,0.02);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            margin-top: auto;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(33,150,243,0.3);
+            transition: all 0.2s;
+            min-height: var(--control-height);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33,150,243,0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            box-shadow: none;
+            border: 1px solid rgba(0,0,0,0.1);
+            min-height: var(--control-height);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(33,150,243,0.1);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .text-input {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: none;
+            min-height: 200px;
+            font-family: inherit;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .speed-value {
+            min-width: 4rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .toolbar-btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            border: none;
+            background: var(--surface);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toolbar-btn:hover {
+            background: rgba(33,150,243,0.1);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .mirror-mode {
+            transform: scaleX(-1);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        .settings-panel {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .settings-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-group h3 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-option.selected {
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 1200px) {
+            .workspace {
+                flex-direction: column;
+            }
+            
+            #teleprompter {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+            .editor-panel {
+                min-height: 150px;
+            }
+            .teleprompter-panel {
+                flex: 1;
+            }
+            #teleprompter {
+                font-size: 1.5rem;
+                padding: 1rem;
+            }
+            .status-bar {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            .editor-panel {
+                padding: 1rem;
+            }
+            .toolbar {
+                gap: 0.25rem;
+            }
+            .toolbar-btn {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+            .controls {
+                padding: 0.5rem;
+            }
+            .btn {
+                padding: 0.75rem;
+                font-size: 0.8rem;
+            }
+            .speed-control {
+                gap: 0.5rem;
+            }
+            .settings-panel {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <div id="text-options">
-    <label id="text-choice-label" for="textChoice">Seleccionar modo: </label>
-    <select id="textChoice">
-      <option value="file">Texto cargado por archivo</option>
-      <option value="manual">Texto escrito manualmente</option>
-    </select>
-  </div>
+    <header class="header">
+        <div class="logo">
+            <span style="font-size: 1.5rem;">📝</span>
+            <h1>Mi Teleprompter Pro</h1>
+        </div>
+        <div style="flex: 1;"></div>
+        <button class="btn btn-secondary" id="settingsBtn">
+            ⚙️ Configuración
+        </button>
+    </header>
 
-  <textarea id="manualText" style="max-width: 81.5%; margin: 0 auto;"></textarea>
-  <input type="file" id="fileInput" accept=".txt" style="position: absolute; left: -9999px;">
-  <label for="fileInput" class="file-upload-label">Cargar Archivo de Texto</label>
-  <br />
-  <div id="teleprompter-container">
-    <div id="teleprompter"></div>
-  </div>
-  <div id="controls">
-    <button id="clearButton">Limpiar</button>
-    <button id="startButton" disabled>Iniciar</button>
-    <button id="pauseButton" disabled>Pausar</button>
-    <button id="stopButton" disabled>Detener</button>
-    <button id="fasterButton">+</button>
-    <button id="slowerButton">-</button>
-    <button id="fullscreenButton">Fullscreen</button>
-  </div>
-  <script>
-    const textChoice = document.getElementById('textChoice');
-    const manualText = document.getElementById('manualText');
-    const fileInput = document.getElementById('fileInput');
-    const startButton = document.getElementById('startButton');
-    const stopButton = document.getElementById('stopButton');
-    const fasterButton = document.getElementById('fasterButton');
-    const slowerButton = document.getElementById('slowerButton');
-    const clearButton = document.getElementById('clearButton');
-    const fullscreenButton = document.getElementById('fullscreenButton');
-    const teleprompter = document.getElementById('teleprompter');
-    const pauseButton = document.getElementById('pauseButton');
+    <main class="main-content">
+        <div class="workspace">
+            <div class="editor-panel">
+                <div class="toolbar">
+                    <button class="toolbar-btn" id="newFileBtn">
+                        📄 Nuevo
+                    </button>
+                    <button class="toolbar-btn" id="openFileBtn">
+                        📂 Abrir
+                    </button>
+                    <button class="toolbar-btn" id="saveFileBtn">
+                        💾 Guardar
+                    </button>
+                    <div style="flex: 1;"></div>
+                    <button class="toolbar-btn" id="wordCountBtn">
+                        📊 Contador de Palabras
+                    </button>
+                    <button class="toolbar-btn" id="mirrorModeBtn">
+                        🪞 Modo Espejo
+                    </button>
+                </div>
 
-    let isPaused = false;
-    let sentences;
-    let currentIndex = 0;
-    let currentSentence = '';
-    let currentCharIndex = 0;
-    let timer;
-    let speed = 200;
+                <textarea id="manualText" class="text-input" placeholder="Escribe o pega tu texto aquí..."></textarea>
 
-    pauseButton.addEventListener('click', () => {
-      isPaused = !isPaused;
-      if (isPaused) {
-        clearTimeout(timer);
-        pauseButton.innerText = 'Reanudar';
-      } else {
-        updateText();
-        pauseButton.innerText = 'Pausa';
-      }
-    });
+                <div class="status-bar">
+                    <span id="statusText">Listo</span>
+                    <span>Teleprompter Pro- Diseñado por ZyFeronix</span>
+                </div>
+            </div>
 
-    function splitText(text) {
-      return text.split('.').filter(sentence => sentence.trim() !== '');
-    }
+            <div class="teleprompter-panel">
+                <div id="teleprompter"></div>
+                <div class="controls">
+                    <button id="startButton" class="btn">
+                        ▶️ Iniciar
+                    </button>
+                    <button id="pauseButton" class="btn btn-secondary">
+                        ⏸️ Pausar
+                    </button>
+                    <button id="stopButton" class="btn btn-secondary">
+                        ⏹️ Detener
+                    </button>
+                    <div class="speed-control">
+                        <button id="slowerButton" class="btn btn-secondary">−</button>
+                        <span class="speed-value" id="speedValue">200</span>
+                        <button id="fasterButton" class="btn btn-secondary">+</button>
+                    </div>
+                    <button id="fullscreenButton" class="btn btn-secondary">
+                        📺 Pantalla Completa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
 
-    function loadTextFromFile(file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const fileContent = e.target.result;
-        sentences = splitText(fileContent);
-        startButton.disabled = false;
-      };
-      reader.readAsText(file);
-    }
+    <div id="settingsOverlay" class="overlay" style="display: none;">
+        <div class="settings-panel">
+            <h2 style="margin-bottom: 2rem; font-weight: 600;">Configuración</h2>
+            
+            <div class="settings-group">
+                <h3>Apariencia</h3>
+                <div class="settings-row">
+                    <span>Tema de Color</span>
+                    <div class="color-picker">
+                        <div class="color-option" style="background: #FFFFFF;" data-theme="light"></div>
+                        <div class="color-option" style="background: #212121;" data-theme="dark"></div>
+                        <div class="color-option" style="background: #F5F5F5;" data-theme="system"></div>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <span>Tamaño de Fuente</span>
+                    <input type="range" id="fontSize" min="16" max="64" value="32">
+                </div>
+            </div>
 
-    textChoice.addEventListener('change', function() {
-      if (textChoice.value === 'manual') {
-        manualText.style.display = 'block';
-        fileInput.style.display = 'none';
-        document.querySelector('.file-upload-label').style.display = 'none';
-      } else {
-        manualText.style.display = 'none';
-        fileInput.style.display = 'block';
-        document.querySelector('.file-upload-label').style.display = 'block';
-      }
-    });
+            <div class="settings-group">
+                <h3>Comportamiento</h3>
+                <div class="settings-row">
+                    <span>Auto-Guardar</span>
+                    <label class="switch">
+                        <input type="checkbox" id="autoSave">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <span>Continuar desde Donde Se Dejó</span>
+                    <label class="switch">
+                        <input type="checkbox" id="resumePosition">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
 
-    manualText.addEventListener('input', function() {
-      sentences = splitText(manualText.value);
-      startButton.disabled = false;
-    });
+            <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
+                <button class="btn" id="saveSettings" style="margin-right: 1rem;">
+                    Guardar
+                </button>
+                <button class="btn btn-secondary" id="cancelSettings">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
 
-    fileInput.addEventListener('change', function() {
-      const file = this.files[0];
-      loadTextFromFile(file);
-    });
-
-    startButton.addEventListener('click', () => {
-      startButton.disabled = true;
-      stopButton.disabled = false;
-      teleprompter.innerHTML = '';
-
-      function updateText() {
-        if (currentIndex < sentences.length) {
-          if (currentCharIndex < sentences[currentIndex].length) {
-            const char = sentences[currentIndex][currentCharIndex];
-
-            if (char.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/)) {
-              currentSentence += char;
-            } else {
-              currentSentence += twemoji.parse(char);
+    <script>
+        class TeleprompterPro {
+            constructor() {
+                this.speed = 200;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentIndex = 0;
+                this.currentCharIndex = 0;
+                this.animationFrame = null;
+                this.sentences = [];
+                this.mirrorMode = false;
+                this.autoSave = true;
+                this.resumePosition = true;
+                this.currentTheme = 'light';
+                this.fontSize = 32;
+                
+                this.initElements();
+                this.initEvents();
+                this.loadSettings();
+                this.applyTheme();
+                // Solución para el comportamiento de desplazamiento en móviles
+                this.fixMobileScroll();
+                // Aplicar preferencias persistidas
+                this.applyPersistedPreferences();
             }
 
-            teleprompter.innerHTML = currentSentence;
-            currentCharIndex++;
-          } else {
-            currentIndex++;
-            currentCharIndex = 0;
-            currentSentence = '';
-          }
+            initElements() {
+                // Elementos principales
+                this.teleprompter = document.getElementById('teleprompter');
+                this.startButton = document.getElementById('startButton');
+                this.pauseButton = document.getElementById('pauseButton');
+                this.stopButton = document.getElementById('stopButton');
+                this.fasterButton = document.getElementById('fasterButton');
+                this.slowerButton = document.getElementById('slowerButton');
+                this.speedValue = document.getElementById('speedValue');
+                this.fullscreenButton = document.getElementById('fullscreenButton');
+                this.manualText = document.getElementById('manualText');
+                this.settingsOverlay = document.getElementById('settingsOverlay');
+                this.settingsBtn = document.getElementById('settingsBtn');
+                this.saveSettings = document.getElementById('saveSettings');
+                this.cancelSettings = document.getElementById('cancelSettings');
+                this.fontSizeControl = document.getElementById('fontSize');
+                this.autoSaveCheckbox = document.getElementById('autoSave');
+                this.resumePositionCheckbox = document.getElementById('resumePosition');
+                this.colorOptions = document.querySelectorAll('.color-option');
+                this.mirrorModeBtn = document.getElementById('mirrorModeBtn');
+                
+                // Herramientas
+                this.newFileBtn = document.getElementById('newFileBtn');
+                this.openFileBtn = document.getElementById('openFileBtn');
+                this.saveFileBtn = document.getElementById('saveFileBtn');
+                this.wordCountBtn = document.getElementById('wordCountBtn');
+                
+                // Estado
+                this.statusText = document.getElementById('statusText');
+            }
 
-          teleprompter.scrollTop = teleprompter.scrollHeight;
-          timer = setTimeout(updateText, speed);
+            initEvents() {
+                // Controles de reproducción
+                this.startButton.addEventListener('click', () => this.start());
+                this.pauseButton.addEventListener('click', () => this.togglePause());
+                this.stopButton.addEventListener('click', () => this.stop());
+                this.fasterButton.addEventListener('click', () => this.adjustSpeed(-50));
+                this.slowerButton.addEventListener('click', () => this.adjustSpeed(50));
+                this.fullscreenButton.addEventListener('click', () => this.toggleFullscreen());
+                this.mirrorModeBtn.addEventListener('click', () => this.toggleMirrorMode());
+                
+                // Herramientas
+                this.newFileBtn.addEventListener('click', () => this.newFile());
+                this.openFileBtn.addEventListener('click', () => this.openFile());
+                this.saveFileBtn.addEventListener('click', () => this.saveFile());
+                this.wordCountBtn.addEventListener('click', () => this.showWordCount());
+                
+                // Configuración
+                this.settingsBtn.addEventListener('click', () => this.openSettings());
+                this.saveSettings.addEventListener('click', () => this.saveSettings());
+                this.cancelSettings.addEventListener('click', () => this.closeSettings());
+                this.fontSizeControl.addEventListener('input', (e) => this.setFontSize(e.target.value));
+                this.colorOptions.forEach(option => {
+                    option.addEventListener('click', (e) => this.setTheme(e.target.dataset.theme));
+                });
+                this.autoSaveCheckbox.addEventListener('change', (e) => this.autoSave = e.target.checked);
+                this.resumePositionCheckbox.addEventListener('change', (e) => this.resumePosition = e.target.checked);
+                
+                // Entrada de texto
+                this.manualText.addEventListener('input', () => this.updateText());
+                
+                // Eventos del sistema
+                window.addEventListener('beforeunload', () => this.handleBeforeUnload());
+            }
+
+            // Funcionalidades principales
+            updateText() {
+                const text = this.manualText.value;
+                this.sentences = text.split(/[.!?]+\s*/).filter(s => s.trim());
+                this.startButton.disabled = !text.trim();
+                this.updateStatus();
+            }
+
+            start() {
+                if (!this.sentences.length) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                this.updateControls();
+                this.animate();
+            }
+
+            togglePause() {
+                this.isPaused = !this.isPaused;
+                this.pauseButton.textContent = this.isPaused ? '▶️ Reanudar' : '⏸️ Pausar';
+                if (!this.isPaused) this.animate();
+            }
+
+            stop() {
+                this.isRunning = false;
+                this.currentIndex = 0;
+                this.currentCharIndex = 0;
+                this.teleprompter.textContent = '';
+                this.updateControls();
+                this.updateStatus('Listo');
+            }
+
+            adjustSpeed(delta) {
+                this.speed = Math.max(50, Math.min(500, this.speed + delta));
+                this.speedValue.textContent = this.speed;
+                this.updateStatus(`Velocidad: ${this.speed}ms`);
+                // Actualizar inmediatamente la velocidad de animación
+                if (this.animationFrame) {
+                    clearTimeout(this.animationFrame);
+                    this.animate();
+                }
+            }
+
+            animate() {
+                if (!this.isRunning || this.isPaused) return;
+
+                if (this.currentIndex >= this.sentences.length) {
+                    this.stop();
+                    return;
+                }
+
+                const sentence = this.sentences[this.currentIndex];
+                if (this.currentCharIndex < sentence.length) {
+                    this.currentCharIndex++;
+                } else {
+                    this.currentIndex++;
+                    this.currentCharIndex = 0;
+                }
+
+                this.teleprompter.textContent = sentence.substring(0, this.currentCharIndex);
+                this.teleprompter.scrollTop = this.teleprompter.scrollHeight;
+
+                this.animationFrame = setTimeout(() => this.animate(), this.speed);
+            }
+
+            // Funcionalidades de la herramienta
+            newFile() {
+                this.manualText.value = '';
+                this.updateText();
+                this.updateStatus('Nuevo archivo creado');
+            }
+
+            openFile() {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.txt';
+                
+                fileInput.addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const text = await file.text();
+                        this.manualText.value = text;
+                        this.updateText();
+                        this.updateStatus(`Archivo abierto: ${file.name}`);
+                    }
+                });
+                
+                fileInput.click();
+            }
+
+            async saveFile() {
+                const text = this.manualText.value;
+                if (!text.trim()) return;
+                
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'teleprompter-script.txt';
+                a.click();
+                
+                this.updateStatus('Archivo guardado');
+            }
+
+            showWordCount() {
+                const text = this.manualText.value;
+                const wordCount = text.split(/\s+/).filter(word => word.trim()).length;
+                alert(`Contador de Palabras: ${wordCount}`);
+            }
+
+            // Funciones de configuración
+            openSettings() {
+                this.settingsOverlay.style.display = 'flex';
+                this.fontSizeControl.value = this.fontSize;
+                this.autoSaveCheckbox.checked = this.autoSave;
+                this.resumePositionCheckbox.checked = this.resumePosition;
+                document.querySelector(`.color-option[data-theme="${this.currentTheme}"]`).classList.add('selected');
+            }
+
+            closeSettings() {
+                this.settingsOverlay.style.display = 'none';
+                this.applyTheme();
+            }
+
+            saveSettings() {
+                this.autoSave = this.autoSaveCheckbox.checked;
+                this.resumePosition = this.resumePositionCheckbox.checked;
+                this.closeSettings();
+                this.updateStatus('Configuración guardada');
+            }
+
+            setTheme(theme) {
+                this.currentTheme = theme;
+                this.colorOptions.forEach(option => {
+                    option.classList.toggle('selected', option.dataset.theme === theme);
+                });
+                this.applyTheme();
+                // Guardar preferencia en localStorage
+                localStorage.setItem('theme', theme);
+            }
+
+            applyTheme() {
+                const theme = this.currentTheme;
+                if (theme === 'dark') {
+                    document.documentElement.style.setProperty('--background', '#212121');
+                    document.documentElement.style.setProperty('--surface', '#333333');
+                    document.documentElement.style.setProperty('--text-primary', '#FFFFFF');
+                    document.documentElement.style.setProperty('--text-secondary', '#B0B0B0');
+                } else if (theme === 'light') {
+                    document.documentElement.style.setProperty('--background', '#F5F5F5');
+                    document.documentElement.style.setProperty('--surface', '#FFFFFF');
+                    document.documentElement.style.setProperty('--text-primary', '#333333');
+                    document.documentElement.style.setProperty('--text-secondary', '#757575');
+                }
+                this.updateStatus(`Tema aplicado: ${this.currentTheme}`);
+            }
+
+            setFontSize(size) {
+                this.fontSize = size;
+                this.teleprompter.style.fontSize = `${size}px`;
+                this.updateStatus(`Tamaño de fuente: ${size}px`);
+                // Guardar preferencia en localStorage
+                localStorage.setItem('fontSize', size);
+            }
+
+            toggleMirrorMode() {
+                this.mirrorMode = !this.mirrorMode;
+                this.teleprompter.classList.toggle('mirror-mode');
+                this.mirrorModeBtn.textContent = this.mirrorMode ? '🪞 Modo Normal' : '🪞 Modo Espejo';
+                this.updateStatus(`Modo espejo: ${this.mirrorMode ? 'Activado' : 'Desactivado'}`);
+                // Guardar preferencia en localStorage
+                localStorage.setItem('mirrorMode', this.mirrorMode);
+            }
+
+            // Funciones auxiliares
+            updateControls() {
+                this.startButton.disabled = this.isRunning;
+                this.pauseButton.disabled = !this.isRunning;
+                this.stopButton.disabled = !this.isRunning;
+                // Solucionar el estado del botón de pausa al iniciar
+                if (this.isRunning && !this.isPaused) {
+                    this.pauseButton.disabled = false;
+                }
+            }
+
+            updateStatus(message = 'Listo') {
+                this.statusText.textContent = message;
+            }
+
+            loadSettings() {
+                const savedTheme = localStorage.getItem('theme');
+                const savedFontSize = localStorage.getItem('fontSize');
+                const savedMirrorMode = localStorage.getItem('mirrorMode');
+                if (savedTheme) this.currentTheme = savedTheme;
+                if (savedFontSize) this.fontSize = parseInt(savedFontSize);
+                if (savedMirrorMode) this.mirrorMode = savedMirrorMode === 'true';
+                // ...otros valores por defecto...
+                this.autoSave = true;
+                this.resumePosition = true;
+            }
+
+            handleBeforeUnload(e) {
+                if (this.autoSave) this.saveFile();
+            }
+
+            // Funciones de pantalla completa
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            fixMobileScroll() {
+                // Prevenir el comportamiento de desplazamiento del cuerpo durante el desplazamiento del teleprompter
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+                // Habilitar el desplazamiento suave para el panel del teleprompter
+                if (this.teleprompter && this.teleprompter.parentNode) {
+                    this.teleprompter.parentNode.style.overflowY = 'auto';
+                    this.teleprompter.parentNode.style.webkitOverflowScrolling = 'touch';
+                }
+            }
+
+            // Aplicar preferencias persistidas (tema, tamaño de fuente, modo espejo)
+            applyPersistedPreferences() {
+                this.setFontSize(this.fontSize);
+                if (this.mirrorMode) {
+                    this.teleprompter.classList.add('mirror-mode');
+                    this.mirrorModeBtn.textContent = '🪞 Modo Normal';
+                }
+            }
         }
-      }
 
-      updateText();
-    });
-
-
-    stopButton.addEventListener('click', () => {
-      clearTimeout(timer);
-      startButton.disabled = false;
-      stopButton.disabled = true;
-      currentIndex = 0;
-      currentCharIndex = 0;
-      currentSentence = '';
-    });
-
-    fasterButton.addEventListener('click', () => {
-      speed -= 50;
-      if (speed < 50) {
-        speed = 50;
-      }
-    });
-
-    slowerButton.addEventListener('click', () => {
-      speed += 50;
-    });
-
-    clearButton.addEventListener('click', () => {
-      clearTimeout(timer);
-      startButton.disabled = false;
-      stopButton.disabled = true;
-      currentIndex = 0;
-      currentCharIndex = 0;
-      currentSentence = '';
-      teleprompter.innerHTML = '';
-    });
-
-    fullscreenButton.addEventListener('click', () => {
-      if (document.documentElement.requestFullscreen) {
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-        } else {
-          document.documentElement.requestFullscreen();
-        }
-      }
-    });
-  </script>
+        // Inicialización
+        const teleprompter = new TeleprompterPro();
+    </script>
 </body>
-
 </html>
