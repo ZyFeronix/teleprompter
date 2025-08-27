@@ -1,46 +1,186 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Teleprompter Pro - Herramienta Profesional</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teleprompter Pro – Herramienta Profesional para Creadores</title>
+    <!--
+        Este archivo contiene una versión mejorada del teleprompter original.  
+        Se han añadido numerosas funciones y ajustes para adaptarlo a las necesidades
+        de creadores de contenido, streamers, artistas y profesionales de la voz.  
+        Algunas de las mejoras incluyen:
+          • barra de progreso de lectura
+          • selector de velocidad mediante deslizador y botones
+          • atajos de teclado con panel de ayuda
+          • selección de familia tipográfica y alineación
+          • resaltado del texto leído y contador de tiempo transcurrido
+          • diseño responsivo modernizado
+          • No me acuerdo que mas había
+    -->
     <style>
         :root {
-            --primary: #2196F3;
-            --background: #F5F5F5;
-            --surface: #FFFFFF;
-            --text-primary: #333333;
-            --text-secondary: #757575;
+            /* Variables de diseño que se adaptan según el modo de interfaz. */
+            /* Estas son valores predeterminados para el modo profesional.  */
+            --color-primary: #2196f3;
+            --color-secondary: #0d47a1;
+            --surface-light: #ffffff;
+            --text-dark: #333333;
+            --text-light: #f5f5f5;
+            --highlight: #ff9800;
+            --progress-bg: rgba(0, 0, 0, 0.1);
+            --progress-bar: var(--color-primary);
             --border-radius: 16px;
-            --shadow: 0 4px 24px rgba(0,0,0,0.1);
-            --control-height: 60px;
+            --control-height: 54px;
+        /* Tipo de letra por defecto, puede ser sobrescrito por cada modo */
+        --font-body: 'Poppins', 'Segoe UI', 'Roboto', sans-serif;
+        --font-heading: 'Poppins', 'Segoe UI', 'Roboto', sans-serif;
         }
 
-        * {
+        /* Modo profesional (por defecto) */
+        body[data-mode="professional"] {
+            --color-primary: #2196f3;
+            --color-secondary: #0d47a1;
+            --surface-light: #ffffff;
+            --text-dark: #333333;
+            --text-light: #f5f5f5;
+            --highlight: #ff9800;
+            --progress-bg: rgba(0, 0, 0, 0.1);
+            --progress-bar: var(--color-primary);
+            --border-radius: 16px;
+            --control-height: 54px;
+            --font-body: 'Poppins', 'Segoe UI', 'Roboto', sans-serif;
+            --font-heading: 'Poppins', 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        /* Modo amigable: colores más cálidos y bordes más redondeados */
+        body[data-mode="friendly"] {
+            --color-primary: #ff8a65; /* Coral suave */
+            --color-secondary: #d84315; /* Rojo teja */
+            --surface-light: #fff3e0; /* Crema */
+            --text-dark: #4a4a4a;
+            --text-light: #ffffff;
+            --highlight: #f06292; /* Rosa vivo para resaltado */
+            --progress-bg: rgba(0, 0, 0, 0.1);
+            --progress-bar: var(--color-primary);
+            --border-radius: 24px;
+            --control-height: 64px;
+            /* Tipografías divertidas y amistosas */
+            --font-body: 'Comic Neue', 'Poppins', 'Arial', sans-serif;
+            --font-heading: 'Comic Neue', 'Poppins', 'Arial', sans-serif;
+        }
+
+        /* Temas: definen el color de fondo y texto general de la aplicación. */
+        /* El tema se indica mediante data-theme en el cuerpo.  Estos estilos
+           se combinan con los valores de interfaz (profesional/amigable), que
+           definen los colores primarios y secundarios. */
+        body[data-theme="light"] {
+            --surface-light: #ffffff;
+            --text-dark: #333333;
+            --progress-bg: rgba(0, 0, 0, 0.1);
+        }
+        body[data-theme="dark"] {
+            /* Oscurecemos ligeramente el fondo y aclaramos las
+               superficies para mejorar el contraste.  La superficie
+               principal ahora es un gris oscuro neutro que permite
+               diferenciar mejor los elementos sin perder la estética
+               general del tema oscuro. */
+            --surface-light: #2a2a2e;
+            --text-dark: #f5f5f5;
+            --progress-bg: rgba(255, 255, 255, 0.15);
+        }
+        body[data-theme="sepia"] {
+            /* Ajustamos las superficies para un tono más homogéneo,
+               acercándonos a la apariencia de pergamino antiguo sin
+               comprometer la legibilidad. */
+            --surface-light: #f8efe3;
+            --text-dark: #3b3a32;
+            --progress-bg: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Tema nostálgico / retro inspirado en glassmorphism y Windows XP/7. */
+        body[data-theme="nostalgic"] {
+            /*
+             * Tema nostálgico/retro: combina el efecto de
+             * glassmorphism de Apple con la paleta Frutiger Aero de
+             * Windows XP/7.  Utiliza un degradado suave entre tonos
+             * violeta y azul verdoso para recordar a los fondos de
+             * Windows XP mientras mantiene un aspecto moderno y
+             * luminoso.  La transparencia y el desenfoque de
+             * glassmorphism se aplican a las superficies a través de
+             * estilos adicionales más abajo.
+             */
+            background: radial-gradient(
+                1000px at 50% 0%,
+                #e0c3fc 0%,
+                #8ec5fc 40%,
+                #bce7fd 100%
+            );
+            /* Superficies translúcidas para efecto glassmorphism */
+            --surface-light: rgba(255, 255, 255, 0.4);
+            /* Texto oscuro con mayor contraste para mejorar la legibilidad */
+            --text-dark: #102f52;
+            /* Fondo para la barra de progreso ligeramente traslúcido */
+            --progress-bg: rgba(255, 255, 255, 0.3);
+            /* Colores primarios inspirados en el estilo Aero de Windows */
+            --color-primary: #6ca0dc;
+            --color-secondary: #38618c;
+            /* Color para resaltar el texto leído (amarillo suave) */
+            --highlight: #ffd166;
+            /* Ajustar el radio de borde y la altura de los controles para un look retro-moderno */
+            --border-radius: 20px;
+            --control-height: 60px;
+
+            /* Tipografías inspiradas en Windows XP/7 para un toque nostálgico */
+            --font-body: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+            --font-heading: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+        }
+
+        /* Glassmorphism: aplicar desenfoque y un borde sutil a elementos principales cuando el tema es nostálgico */
+        body[data-theme="nostalgic"] .editor-panel,
+        body[data-theme="nostalgic"] .teleprompter-panel,
+        body[data-theme="nostalgic"] .settings-panel,
+        body[data-theme="nostalgic"] .controls,
+        body[data-theme="nostalgic"] .toolbar-btn,
+        body[data-theme="nostalgic"] .btn,
+        body[data-theme="nostalgic"] header {
+            backdrop-filter: blur(12px) saturate(180%);
+            background: var(--surface-light);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        body[data-theme="nostalgic"] .settings-panel {
+            background: var(--surface-light);
+        }
+
+        /* Asegurar contraste suficiente en modo nostálgico para el texto en botones */
+        body[data-theme="nostalgic"] .btn-primary {
+            color: var(--text-dark);
+        }
+
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            background: var(--background);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-            min-height: 100vh;
+            font-family: var(--font-body);
+            background: var(--surface-light);
+            color: var(--text-dark);
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        .header {
-            background: var(--surface);
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            box-shadow: var(--shadow);
+        /* Encabezado */
+        header {
+            background: var(--surface-light);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
-            gap: 1rem;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
             z-index: 100;
         }
 
@@ -48,15 +188,14 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .logo h1 {
+            font-size: 1.6rem;
             font-weight: 600;
-            color: var(--primary);
-            font-size: 1.4rem;
+            color: var(--color-primary);
+            font-family: var(--font-heading);
         }
 
-        .main-content {
+        /* Contenedor principal */
+        main {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -68,201 +207,293 @@
         .workspace {
             flex: 1;
             display: flex;
-            flex-direction: column;
             gap: 1rem;
             overflow: hidden;
         }
 
+        /* Panel del editor */
         .editor-panel {
-            background: var(--surface);
+            flex-basis: 40%;
+            min-width: 300px;
+            background: var(--surface-light);
             border-radius: var(--border-radius);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
             padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            min-height: 200px;
-        }
-
-        .teleprompter-panel {
-            flex: 1;
-            background: var(--surface);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,0.05);
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #teleprompter {
-            font-size: 3rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            font-weight: 400;
-            color: var(--text-primary);
-            text-align: center;
-            min-height: 100%;
-            position: relative;
-            padding: 2rem;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .controls {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding: 1rem;
-            background: rgba(0,0,0,0.02);
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-            margin-top: auto;
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 2px 8px rgba(33,150,243,0.3);
-            transition: all 0.2s;
-            min-height: var(--control-height);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(33,150,243,0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: var(--surface);
-            color: var(--text-primary);
-            box-shadow: none;
-            border: 1px solid rgba(0,0,0,0.1);
-            min-height: var(--control-height);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(33,150,243,0.1);
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .text-input {
-            flex: 1;
-            background: var(--surface);
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: var(--border-radius);
-            padding: 1rem;
-            color: var(--text-primary);
-            font-size: 1rem;
-            resize: none;
-            min-height: 200px;
-            font-family: inherit;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .speed-control {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .speed-value {
-            min-width: 4rem;
-            text-align: center;
-            font-weight: 500;
         }
 
         .toolbar {
             display: flex;
-            gap: 0.5rem;
             flex-wrap: wrap;
+            gap: 0.5rem;
             margin-bottom: 1rem;
         }
 
         .toolbar-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.8rem;
+            background: var(--surface-light);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: var(--border-radius);
-            border: none;
-            background: var(--surface);
-            color: var(--text-primary);
+            color: var(--text-dark);
+            font-size: 0.9rem;
             cursor: pointer;
+            transition: background 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .toolbar-btn:hover {
+            /* Usamos el color primario suavizado para el modo activo y
+               semitransparente para que el contraste sea visible tanto en
+               temas claros como oscuros. */
+            background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+        }
+
+        .text-input {
+            flex: 1;
+            width: 100%;
+            min-height: 200px;
+            resize: vertical;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .status-bar {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            color: #757575;
+            font-size: 0.85rem;
+        }
+
+        /* Muestra el tiempo restante de la lectura */
+        .status-bar .remaining-time {
+            margin-left: auto;
+            margin-right: 0.5rem;
+            font-weight: 600;
+            color: var(--highlight);
+        }
+
+        /* Panel del teleprompter */
+        .teleprompter-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface-light);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        #teleprompter {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            font-size: 2.4rem;
+            line-height: 1.5;
+            font-weight: 400;
+            text-align: center;
+            word-wrap: break-word;
+            position: relative;
+
+            /*
+             * Animaciones suaves al actualizar el texto del teleprompter.  La
+             * transición en la opacidad hace que cada nuevo bloque de texto
+             * aparezca de manera gradual, y scroll-behavior facilita el
+             * desplazamiento fluido al final del contenido.  Estos efectos
+             * se aplican globalmente y se complementan con la lógica en
+             * animate() para mejorar la experiencia de lectura.
+             */
+            transition: opacity 0.3s ease;
+            scroll-behavior: smooth;
+        }
+
+        /* Resaltado del texto actualmente leído */
+        .highlighted {
+            color: var(--highlight);
+            font-weight: 600;
+        }
+
+        /* Barra de progreso */
+        .progress-wrapper {
+            height: 6px;
+            background: var(--progress-bg);
+            width: 100%;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--progress-bar);
+            transition: width 0.2s ease-out;
+            border-radius: 3px;
+        }
+
+        /* Controles */
+        .controls {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.7rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.7rem 1.2rem;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            height: var(--control-height);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: #fff;
+            /* Utilizamos sombras neutras para que no dependan del color primario */
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            /* Aumentamos la intensidad de la sombra al pasar el ratón */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-light);
+            color: var(--text-dark);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estado activo para botones conmutables (como Modo espejo).  Se
+           distingue aplicando el color primario como fondo y ajustando
+           el color del texto para garantizar contraste.  La sombra se
+           incrementa para dar un efecto de pulsación. */
+        .btn-secondary.active, .toolbar-btn.active {
+            background: var(--color-primary);
+            color: #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-secondary:hover {
+            /* Los botones secundarios utilizan una versión transparente del
+               color primario para su efecto hover.  Esto armoniza con
+               cualquier tema y mantiene la legibilidad del texto. */
+            background: color-mix(in srgb, var(--color-primary) 20%, transparent);
+        }
+
+        /* Control de velocidad con deslizador */
+        .speed-control {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .toolbar-btn:hover {
-            background: rgba(33,150,243,0.1);
+        #speedSlider {
+            width: 150px;
+            accent-color: var(--color-primary);
         }
 
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 1rem 0;
-            border-top: 1px solid rgba(0,0,0,0.1);
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+        .speed-value {
+            min-width: 3rem;
+            text-align: center;
+            font-weight: 600;
         }
 
-        .mirror-mode {
-            transform: scaleX(-1);
-        }
-
+        /* Panel de configuración */
         .overlay {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.9);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            /* Los paneles flotantes (configuración, emojis) están ocultos
+               por defecto utilizando opacidad y visibilidad.  Esto permite
+               que las animaciones de entrada y salida utilicen las
+               propiedades CSS de transición sin necesidad de alterar
+               dinámicamente la propiedad display desde JavaScript.  La
+               propiedad pointer-events impide que se puedan hacer clic
+               mientras están ocultos. */
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.35s ease, visibility 0s 0.35s;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
-            backdrop-filter: blur(5px);
+            z-index: 200;
+        }
+
+        /* Estado activo: visible y con animación.  La visibilidad se
+           restablece inmediatamente para que el elemento pueda recibir
+           eventos de puntero tan pronto como comienza la transición. */
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.35s ease;
         }
 
         .settings-panel {
-            background: var(--surface);
+            width: 90%;
+            max-width: 700px;
+            background: var(--surface-light);
             padding: 2rem;
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            width: 90%;
-            max-width: 600px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+            /* Agregamos una animación de entrada: el panel parte ligeramente
+               arriba y reducido, y se expande a su tamaño completo cuando
+               la superposición se vuelve activa.  Esto crea un efecto de
+               "pop" similar al glassmorphism de macOS. */
+            /* Arranca con una ligera traslación y menor escala. La
+               animación personalizada (ver abajo) se encargará de
+               desplazar y difuminar el panel al mostrarse. */
+            transform: translateY(-30px) scale(0.94);
+            opacity: 0;
+            transition: none;
+            /* Asegurar que los elementos dentro del panel capturen los eventos
+               de puntero, incluso cuando la superposición tenga
+               pointer-events: auto. */
+            pointer-events: auto;
+        }
+
+        /* Cuando la superposición esté activa, los paneles deben tomar su
+           posición final.  Utilizamos la combinación de clases para
+           aprovechar la herencia (ver openSettings y openEmojiPicker en JS). */
+        .overlay.active .settings-panel {
+            /* Al activarse, el panel realizará la animación slideUpFade.
+               La animación es corta para no entorpecer la interacción. */
+            animation: slideUpFade 0.4s forwards;
         }
 
         .settings-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .settings-group h3 {
             margin-bottom: 1rem;
-            color: var(--text-primary);
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--color-secondary);
         }
 
         .settings-row {
@@ -272,210 +503,434 @@
             margin-bottom: 1rem;
         }
 
+        .settings-row label {
+            margin-right: 1rem;
+        }
+
         .color-picker {
             display: flex;
             gap: 0.5rem;
         }
 
         .color-option {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            cursor: pointer;
             border: 2px solid transparent;
+            cursor: pointer;
         }
 
         .color-option.selected {
-            border-color: var(--primary);
+            /* Resaltamos el color elegido con mayor contraste: el borde utiliza el
+               color secundario (generalmente más oscuro) y añadimos una
+               doble sombra para que el botón se distinga incluso en
+               superficies translúcidas. */
+            border-color: var(--color-secondary);
+            box-shadow:
+                0 0 0 2px var(--color-secondary) inset,
+                0 0 0 4px rgba(0, 0, 0, 0.25);
         }
 
-        @media (max-width: 1200px) {
+        /* Selector de fuente */
+        .select {
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Atajos de teclado */
+        .shortcut-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            color: #fff;
+            padding: 2rem;
+        }
+
+        .shortcut-panel {
+            background: #222;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .shortcut-panel h3 {
+            margin-bottom: 1rem;
+            color: #fff;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .shortcut-panel table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .shortcut-panel th,
+        .shortcut-panel td {
+            padding: 0.6rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .shortcut-panel th {
+            text-align: left;
+            font-weight: 600;
+            color: #bbdefb;
+        }
+
+        .shortcut-panel td {
+            color: #e3f2fd;
+        }
+
+        .shortcut-panel button {
+            margin-top: 1.5rem;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: none;
+            background: var(--color-primary);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Modo espejo */
+        .mirror-mode {
+            transform: scaleX(-1);
+        }
+
+        /* Medios responsivos */
+        @media (max-width: 1024px) {
             .workspace {
                 flex-direction: column;
             }
-            
+            .editor-panel {
+                flex-basis: unset;
+                width: 100%;
+                margin-bottom: 1rem;
+            }
             #teleprompter {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
         }
 
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
             .btn {
                 width: 100%;
             }
-            .editor-panel {
-                min-height: 150px;
-            }
-            .teleprompter-panel {
-                flex: 1;
-            }
-            #teleprompter {
-                font-size: 1.5rem;
-                padding: 1rem;
-            }
-            .status-bar {
+            .controls {
                 flex-direction: column;
                 gap: 0.5rem;
             }
         }
-        @media (max-width: 480px) {
-            .main-content {
-                padding: 0.5rem;
+
+        /* Ajustar el tamaño de los emojis cuando se renderizan con Twemoji */
+        img.emoji {
+            /* Asegurar que los emojis escalen con el tamaño de la fuente */
+            height: 1em;
+            width: 1em;
+            vertical-align: -0.15em;
+        }
+
+        /*
+         * En el tema nostálgico aplicamos un estilo retro a los emojis para
+         * recordar los iconos de sistemas antiguos.  Se reduce la saturación
+         * y se aplica un filtro sepia/grayscale.  También se utiliza
+         * image-rendering: pixelated para que los contornos se vean más
+         * pixelados, imitando el arte de la era XP/7.
+         */
+        body[data-theme="nostalgic"] img.emoji {
+            filter: grayscale(0.1) sepia(0.3) saturate(0.8) brightness(1.1);
+            image-rendering: pixelated;
+        }
+
+        /* Estilos adicionales para el modo amigable */
+        body[data-mode="friendly"] .logo {
+            font-size: 2rem;
+        }
+
+        body[data-mode="friendly"] .toolbar-btn {
+            font-size: 1rem;
+            padding: 0.6rem 1rem;
+            border-radius: calc(var(--border-radius) * 1.5);
+        }
+
+        body[data-mode="friendly"] .btn {
+            font-size: 1rem;
+            border-radius: calc(var(--border-radius) * 1.5);
+        }
+
+        body[data-mode="friendly"] #teleprompter {
+            font-size: 2.2rem;
+        }
+
+        body[data-mode="friendly"] .controls {
+            gap: 0.8rem;
+        }
+
+        /* Aumentar la altura y el radio de la barra de progreso en modo amigable */
+        body[data-mode="friendly"] .progress-wrapper {
+            height: 8px;
+        }
+        body[data-mode="friendly"] .progress-bar {
+            border-radius: 4px;
+        }
+
+        /* Ajustes adicionales para el tema nostálgico.  Al separar estas reglas
+           al final garantizamos que se apliquen después de las reglas
+           generales. */
+        body[data-theme="nostalgic"] .controls {
+            backdrop-filter: blur(10px) saturate(180%);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        body[data-theme="nostalgic"] .toolbar-btn:hover,
+        body[data-theme="nostalgic"] .btn-secondary:hover {
+            /* Usamos una mezcla de los colores primario y secundario para
+               crear un efecto de resaltado más evidente en el tema
+               retro. */
+            background: color-mix(in srgb, var(--color-primary) 25%, var(--color-secondary) 15%);
+        }
+
+        /* Animaciones
+         * Estos keyframes proporcionan animaciones más ricas al abrir
+         * y cerrar paneles flotantes (configuración, selector de emojis).
+         * slideUpFade hace que el panel suba y pase de translúcido a
+         * opaco con un pequeño rebote.  Se utiliza forwards para
+         * mantener el estado final después de la animación. */
+        @keyframes slideUpFade {
+            0% {
+                transform: translateY(30px) scale(0.94);
+                opacity: 0;
             }
-            .editor-panel {
-                padding: 1rem;
+            60% {
+                transform: translateY(-6px) scale(1.02);
+                opacity: 1;
             }
-            .toolbar {
-                gap: 0.25rem;
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
             }
-            .toolbar-btn {
-                padding: 0.5rem;
-                font-size: 0.8rem;
+        }
+
+        @keyframes slideDownFade {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
             }
-            .controls {
-                padding: 0.5rem;
-            }
-            .btn {
-                padding: 0.75rem;
-                font-size: 0.8rem;
-            }
-            .speed-control {
-                gap: 0.5rem;
-            }
-            .settings-panel {
-                padding: 1rem;
+            100% {
+                transform: translateY(30px) scale(0.94);
+                opacity: 0;
             }
         }
     </style>
+
+    <!--
+        Twemoji: convierte emojis estándar en imágenes SVG para una presentación uniforme.
+        Emoji picker: el componente emoji-picker-element permite seleccionar emojis de
+        forma interactiva y está disponible como un web component.  También
+        importamos algunas tipografías modernas para diferenciar los modos de
+        interfaz profesional y amigable.  Estas fuentes se descargan desde
+        Google Fonts cuando se carga la página y dan un aspecto más pulido y
+        cercano.  Si estas fuentes no están disponibles, se utilizarán las
+        fuentes del sistema como respaldo.
+    -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Comic+Neue:wght@400;700&display=swap" />
+    <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" defer></script>
+    <!-- Emoji picker: cargado como módulo ES. Al usar defer, el navegador lo
+         ejecutará cuando el documento esté listo -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js" defer></script>
 </head>
-<body>
-    <header class="header">
+<body data-mode="professional" data-theme="light">
+    <!-- Encabezado -->
+    <header>
         <div class="logo">
-            <span style="font-size: 1.5rem;">📝</span>
-            <h1>Mi Teleprompter Pro</h1>
+            <!-- Icono de teleprompter -->
+            <span>📜</span>
+            Teleprompter Pro
         </div>
-        <div style="flex: 1;"></div>
-        <button class="btn btn-secondary" id="settingsBtn">
-            ⚙️ Configuración
-        </button>
+        <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" id="helpBtn">❓ Ayuda</button>
+            <button class="btn btn-secondary" id="settingsBtn">⚙️ Configuración</button>
+        </div>
     </header>
 
-    <main class="main-content">
+    <!-- Contenido principal -->
+    <main>
         <div class="workspace">
+            <!-- Panel del editor -->
             <div class="editor-panel">
                 <div class="toolbar">
-                    <button class="toolbar-btn" id="newFileBtn">
-                        📄 Nuevo
-                    </button>
-                    <button class="toolbar-btn" id="openFileBtn">
-                        📂 Abrir
-                    </button>
-                    <button class="toolbar-btn" id="saveFileBtn">
-                        💾 Guardar
-                    </button>
-                    <div style="flex: 1;"></div>
-                    <button class="toolbar-btn" id="wordCountBtn">
-                        📊 Contador de Palabras
-                    </button>
-                    <button class="toolbar-btn" id="mirrorModeBtn">
-                        🪞 Modo Espejo
-                    </button>
+                    <button class="toolbar-btn" id="newFileBtn">📄 Nuevo</button>
+                    <button class="toolbar-btn" id="openFileBtn">📂 Abrir</button>
+                    <button class="toolbar-btn" id="saveFileBtn">💾 Guardar</button>
+                    <button class="toolbar-btn" id="wordCountBtn">📊 Contar palabras</button>
+                    <button class="toolbar-btn" id="emojiPickerBtn">😀 Emoji</button>
+                    <button class="toolbar-btn" id="mirrorModeBtn">🪞 Modo espejo</button>
                 </div>
-
-                <textarea id="manualText" class="text-input" placeholder="Escribe o pega tu texto aquí..."></textarea>
-
+                <textarea id="manualText" class="text-input" placeholder="Escribe o pega tu texto aquí…"></textarea>
                 <div class="status-bar">
                     <span id="statusText">Listo</span>
-                    <span>Teleprompter Pro- Diseñado por ZyFeronix</span>
+                    <!-- Tiempo restante para finalizar la lectura (min:seg) -->
+                    <span id="timeRemaining" class="remaining-time">00:00</span>
+                    <span>Diseñado por ZyFeronix</span>
                 </div>
             </div>
-
+            <!-- Panel del teleprompter -->
             <div class="teleprompter-panel">
                 <div id="teleprompter"></div>
+                <div class="progress-wrapper"><div class="progress-bar" id="progressBar"></div></div>
                 <div class="controls">
-                    <button id="startButton" class="btn">
-                        ▶️ Iniciar
-                    </button>
-                    <button id="pauseButton" class="btn btn-secondary">
-                        ⏸️ Pausar
-                    </button>
-                    <button id="stopButton" class="btn btn-secondary">
-                        ⏹️ Detener
-                    </button>
+                    <button id="startButton" class="btn btn-primary">▶️ Iniciar</button>
+                    <button id="pauseButton" class="btn btn-secondary" disabled>⏸️ Pausar</button>
+                    <button id="stopButton" class="btn btn-secondary" disabled>⏹️ Detener</button>
+                    <!-- Navegación entre frases: ir a la frase anterior o siguiente.  Estos
+                         botones complementan los atajos de teclado para un acceso
+                         más directo desde la interfaz. -->
+                    <button id="prevButton" class="btn btn-secondary" title="Frase anterior">⬅️</button>
+                    <button id="nextButton" class="btn btn-secondary" title="Frase siguiente">➡️</button>
                     <div class="speed-control">
                         <button id="slowerButton" class="btn btn-secondary">−</button>
-                        <span class="speed-value" id="speedValue">200</span>
+                        <input type="range" id="speedSlider" min="50" max="500" step="10" value="200" />
                         <button id="fasterButton" class="btn btn-secondary">+</button>
+                        <span class="speed-value" id="speedValue">200ms</span>
                     </div>
-                    <button id="fullscreenButton" class="btn btn-secondary">
-                        📺 Pantalla Completa
-                    </button>
+                    <button id="fullscreenButton" class="btn btn-secondary">📺 Pantalla completa</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="settingsOverlay" class="overlay" style="display: none;">
+    <!-- Panel de Configuración -->
+    <div id="settingsOverlay" class="overlay">
         <div class="settings-panel">
-            <h2 style="margin-bottom: 2rem; font-weight: 600;">Configuración</h2>
-            
+            <h2 style="margin-bottom: 1.5rem; color: var(--color-secondary);">Configuración</h2>
+            <!-- Grupo de apariencia -->
             <div class="settings-group">
                 <h3>Apariencia</h3>
                 <div class="settings-row">
-                    <span>Tema de Color</span>
+                    <label for="themeSelector">Tema:</label>
                     <div class="color-picker">
-                        <div class="color-option" style="background: #FFFFFF;" data-theme="light"></div>
+                        <div class="color-option" style="background: #f5f5f5;" data-theme="light"></div>
                         <div class="color-option" style="background: #212121;" data-theme="dark"></div>
-                        <div class="color-option" style="background: #F5F5F5;" data-theme="system"></div>
+                        <div class="color-option" style="background: #fdf6e3;" data-theme="sepia"></div>
+                        <!-- Tema nostálgico / retro: degradado inspirado en Frutiger Aero de Windows XP/7 -->
+                        <div class="color-option" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 50%, #bce7fd 100%);" data-theme="nostalgic"></div>
                     </div>
                 </div>
                 <div class="settings-row">
-                    <span>Tamaño de Fuente</span>
-                    <input type="range" id="fontSize" min="16" max="64" value="32">
+                    <label for="fontSize">Tamaño de fuente:</label>
+                    <input type="range" id="fontSize" min="18" max="72" value="32" />
                 </div>
-            </div>
+                <div class="settings-row">
+                    <label for="fontFamily">Familia tipográfica:</label>
+                    <select id="fontFamily" class="select">
+                        <option value="default">Sistema</option>
+                        <option value="sans-serif">Sans Serif</option>
+                        <option value="serif">Serif</option>
+                        <option value="monospace">Monospace</option>
+                    </select>
+                </div>
+                <div class="settings-row">
+                    <label for="textAlign">Alineación del texto:</label>
+                    <select id="textAlign" class="select">
+                        <option value="center">Centrado</option>
+                        <option value="left">Izquierda</option>
+                        <option value="right">Derecha</option>
+                    </select>
+                </div>
 
+            <!-- Modo de interfaz (profesional o amigable) -->
+            <div class="settings-row">
+                <label for="interfaceMode">Modo de interfaz:</label>
+                <select id="interfaceMode" class="select">
+                    <option value="professional">Profesional</option>
+                    <option value="friendly">Amigable</option>
+                </select>
+            </div>
+            </div>
+            <!-- Grupo de comportamiento -->
             <div class="settings-group">
                 <h3>Comportamiento</h3>
                 <div class="settings-row">
-                    <span>Auto-Guardar</span>
-                    <label class="switch">
-                        <input type="checkbox" id="autoSave">
-                        <span class="slider"></span>
-                    </label>
+                    <label for="autoSave">Auto-guardar al salir:</label>
+                    <input type="checkbox" id="autoSave" />
                 </div>
                 <div class="settings-row">
-                    <span>Continuar desde Donde Se Dejó</span>
-                    <label class="switch">
-                        <input type="checkbox" id="resumePosition">
-                        <span class="slider"></span>
-                    </label>
+                    <label for="resumePosition">Continuar desde la última posición:</label>
+                    <input type="checkbox" id="resumePosition" />
+                </div>
+                <div class="settings-row">
+                    <label for="highlightToggle">Resaltar texto leído:</label>
+                    <input type="checkbox" id="highlightToggle" />
+                </div>
+                <!-- Color de resaltado personalizado -->
+                <div class="settings-row">
+                    <label for="highlightColor">Color de resaltado:</label>
+                    <input type="color" id="highlightColor" />
                 </div>
             </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn btn-primary" id="saveSettings">Guardar</button>
+                <button class="btn btn-secondary" id="cancelSettings">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-            <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
-                <button class="btn" id="saveSettings" style="margin-right: 1rem;">
-                    Guardar
-                </button>
-                <button class="btn btn-secondary" id="cancelSettings">
-                    Cancelar
-                </button>
+    <!-- Panel de Ayuda / Atajos de teclado -->
+    <div id="shortcutOverlay" class="shortcut-overlay">
+        <div class="shortcut-panel">
+            <h3>Atajos de teclado</h3>
+            <table>
+                <tr>
+                    <th>Tecla</th>
+                    <th>Acción</th>
+                </tr>
+                <tr><td>Barra espaciadora</td><td>Pausar/Reanudar</td></tr>
+                <tr><td>↑ / ↓</td><td>Aumentar/Disminuir velocidad</td></tr>
+                <tr><td>← / →</td><td>Anterior/Siguiente párrafo</td></tr>
+                <tr><td>M</td><td>Activar/Desactivar modo espejo</td></tr>
+                <tr><td>F</td><td>Pantalla completa</td></tr>
+                <tr><td>S</td><td>Abrir Configuración</td></tr>
+                <tr><td>N</td><td>Nuevo archivo</td></tr>
+                <tr><td>O</td><td>Abrir archivo</td></tr>
+                <tr><td>G</td><td>Guardar archivo</td></tr>
+                <tr><td>W</td><td>Contar palabras</td></tr>
+                <tr><td>?</td><td>Mostrar/Ocultar ayuda</td></tr>
+                <tr><td>Esc</td><td>Cerrar ayuda/configuración</td></tr>
+            </table>
+            <button id="closeShortcut">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Panel de selector de emojis -->
+    <div id="emojiOverlay" class="overlay">
+        <div class="settings-panel" style="max-width: 500px;">
+            <h3 style="margin-bottom: 1rem; font-weight: 600; color: var(--color-secondary);">Seleccionar emoji</h3>
+            <!-- El componente emoji-picker se renderiza gracias a la biblioteca emoji-picker-element -->
+            <emoji-picker id="emojiPicker"></emoji-picker>
+            <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn btn-secondary" id="closeEmojiPicker">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script>
+        /**
+         * TeleprompterPro 2.0
+         * Clase que gestiona el comportamiento del teleprompter.
+         */
         class TeleprompterPro {
             constructor() {
+                // Estado inicial
                 this.speed = 200;
                 this.isRunning = false;
                 this.isPaused = false;
@@ -484,292 +939,453 @@
                 this.animationFrame = null;
                 this.sentences = [];
                 this.mirrorMode = false;
-                this.autoSave = true;
-                this.resumePosition = true;
-                this.currentTheme = 'light';
+                this.autoSave = false;
+                this.resumePosition = false;
+                this.highlightReading = false;
                 this.fontSize = 32;
-                
+                this.fontFamily = 'default';
+                this.textAlign = 'center';
+                this.currentTheme = 'light';
+                // Modo de interfaz: 'professional' o 'friendly'
+                this.interfaceMode = 'professional';
+                // Color de resaltado personalizado
+                this.highlightColor = null;
+                // Inicializar elementos
                 this.initElements();
                 this.initEvents();
-                this.loadSettings();
-                this.applyTheme();
-                // Solución para el comportamiento de desplazamiento en móviles
-                this.fixMobileScroll();
-                // Aplicar preferencias persistidas
-                this.applyPersistedPreferences();
+                this.loadPreferences();
+                this.applyPreferences();
+                this.updateControls();
             }
 
+            /* Obtiene referencias a los elementos del DOM */
             initElements() {
-                // Elementos principales
+                // Teleprompter y botones
                 this.teleprompter = document.getElementById('teleprompter');
+                this.progressBar = document.getElementById('progressBar');
                 this.startButton = document.getElementById('startButton');
                 this.pauseButton = document.getElementById('pauseButton');
                 this.stopButton = document.getElementById('stopButton');
                 this.fasterButton = document.getElementById('fasterButton');
                 this.slowerButton = document.getElementById('slowerButton');
+                this.speedSlider = document.getElementById('speedSlider');
                 this.speedValue = document.getElementById('speedValue');
                 this.fullscreenButton = document.getElementById('fullscreenButton');
+                this.prevButton = document.getElementById('prevButton');
+                this.nextButton = document.getElementById('nextButton');
                 this.manualText = document.getElementById('manualText');
+                // Botones de herramientas
+                this.newFileBtn = document.getElementById('newFileBtn');
+                this.openFileBtn = document.getElementById('openFileBtn');
+                this.saveFileBtn = document.getElementById('saveFileBtn');
+                this.wordCountBtn = document.getElementById('wordCountBtn');
+                this.mirrorModeBtn = document.getElementById('mirrorModeBtn');
+                // Configuración
                 this.settingsOverlay = document.getElementById('settingsOverlay');
                 this.settingsBtn = document.getElementById('settingsBtn');
                 this.saveSettings = document.getElementById('saveSettings');
                 this.cancelSettings = document.getElementById('cancelSettings');
                 this.fontSizeControl = document.getElementById('fontSize');
+                this.fontFamilySelect = document.getElementById('fontFamily');
+                this.textAlignSelect = document.getElementById('textAlign');
+                this.highlightToggle = document.getElementById('highlightToggle');
                 this.autoSaveCheckbox = document.getElementById('autoSave');
                 this.resumePositionCheckbox = document.getElementById('resumePosition');
                 this.colorOptions = document.querySelectorAll('.color-option');
-                this.mirrorModeBtn = document.getElementById('mirrorModeBtn');
-                
-                // Herramientas
-                this.newFileBtn = document.getElementById('newFileBtn');
-                this.openFileBtn = document.getElementById('openFileBtn');
-                this.saveFileBtn = document.getElementById('saveFileBtn');
-                this.wordCountBtn = document.getElementById('wordCountBtn');
-                
-                // Estado
+                // Ayuda
+                this.helpBtn = document.getElementById('helpBtn');
+                this.shortcutOverlay = document.getElementById('shortcutOverlay');
+                this.closeShortcutBtn = document.getElementById('closeShortcut');
+                // Estado y mensajes
                 this.statusText = document.getElementById('statusText');
+
+                // Modo de interfaz
+                this.interfaceModeSelect = document.getElementById('interfaceMode');
+
+                // Selector de color de resaltado y indicador de tiempo
+                this.highlightColorInput = document.getElementById('highlightColor');
+                this.timeRemainingSpan = document.getElementById('timeRemaining');
+
+                // Emoji picker
+                this.emojiPickerOverlay = document.getElementById('emojiOverlay');
+                this.emojiPicker = document.getElementById('emojiPicker');
+                this.emojiPickerBtn = document.getElementById('emojiPickerBtn');
+                this.closeEmojiPickerBtn = document.getElementById('closeEmojiPicker');
             }
 
+            /* Inicializa los eventos de interacción */
             initEvents() {
-                // Controles de reproducción
+                // Control de reproducción
                 this.startButton.addEventListener('click', () => this.start());
                 this.pauseButton.addEventListener('click', () => this.togglePause());
                 this.stopButton.addEventListener('click', () => this.stop());
                 this.fasterButton.addEventListener('click', () => this.adjustSpeed(-50));
                 this.slowerButton.addEventListener('click', () => this.adjustSpeed(50));
+                this.speedSlider.addEventListener('input', (e) => this.setSpeed(parseInt(e.target.value)));
                 this.fullscreenButton.addEventListener('click', () => this.toggleFullscreen());
-                this.mirrorModeBtn.addEventListener('click', () => this.toggleMirrorMode());
-                
+                // Botones para navegar entre frases (anterior y siguiente).  Se
+                // encuentran en la barra de controles y complementan las
+                // teclas de flecha izquierda/derecha.
+                if (this.prevButton) this.prevButton.addEventListener('click', () => this.navigateSentence(-1));
+                if (this.nextButton) this.nextButton.addEventListener('click', () => this.navigateSentence(1));
+                // Texto
+                this.manualText.addEventListener('input', () => this.updateText());
                 // Herramientas
                 this.newFileBtn.addEventListener('click', () => this.newFile());
                 this.openFileBtn.addEventListener('click', () => this.openFile());
                 this.saveFileBtn.addEventListener('click', () => this.saveFile());
                 this.wordCountBtn.addEventListener('click', () => this.showWordCount());
-                
+                this.mirrorModeBtn.addEventListener('click', () => this.toggleMirrorMode());
                 // Configuración
                 this.settingsBtn.addEventListener('click', () => this.openSettings());
-                this.saveSettings.addEventListener('click', () => this.saveSettings());
+                this.saveSettings.addEventListener('click', () => this.applySettings());
                 this.cancelSettings.addEventListener('click', () => this.closeSettings());
-                this.fontSizeControl.addEventListener('input', (e) => this.setFontSize(e.target.value));
+                this.fontSizeControl.addEventListener('input', (e) => this.setFontSize(parseInt(e.target.value)));
+                this.fontFamilySelect.addEventListener('change', (e) => this.setFontFamily(e.target.value));
+                this.textAlignSelect.addEventListener('change', (e) => this.setTextAlign(e.target.value));
+                this.highlightToggle.addEventListener('change', (e) => { this.highlightReading = e.target.checked; this.savePreference('highlightReading', this.highlightReading); });
+                this.autoSaveCheckbox.addEventListener('change', (e) => { this.autoSave = e.target.checked; this.savePreference('autoSave', this.autoSave); });
+                this.resumePositionCheckbox.addEventListener('change', (e) => { this.resumePosition = e.target.checked; this.savePreference('resumePosition', this.resumePosition); });
                 this.colorOptions.forEach(option => {
                     option.addEventListener('click', (e) => this.setTheme(e.target.dataset.theme));
                 });
-                this.autoSaveCheckbox.addEventListener('change', (e) => this.autoSave = e.target.checked);
-                this.resumePositionCheckbox.addEventListener('change', (e) => this.resumePosition = e.target.checked);
-                
-                // Entrada de texto
-                this.manualText.addEventListener('input', () => this.updateText());
-                
-                // Eventos del sistema
-                window.addEventListener('beforeunload', () => this.handleBeforeUnload());
+
+                // Cambio de color de resaltado personalizado
+                if (this.highlightColorInput) {
+                    this.highlightColorInput.addEventListener('input', (e) => {
+                        this.setHighlightColor(e.target.value);
+                    });
+                }
+
+                // Cambio de modo de interfaz (profesional/amigable)
+                if (this.interfaceModeSelect) {
+                    this.interfaceModeSelect.addEventListener('change', (e) => {
+                        this.setInterfaceMode(e.target.value);
+                    });
+                }
+                // Atajos de teclado y ayuda
+                this.helpBtn.addEventListener('click', () => this.toggleHelp());
+                this.closeShortcutBtn.addEventListener('click', () => this.hideHelp());
+                // Escuchar teclas globales
+                window.addEventListener('keydown', (e) => this.handleKeydown(e));
+                // Guardar antes de salir
+                window.addEventListener('beforeunload', (e) => {
+                    if (this.autoSave) {
+                        this.saveFile();
+                    }
+                });
+
+                // Emoji picker: abrir y cerrar
+                if (this.emojiPickerBtn) {
+                    this.emojiPickerBtn.addEventListener('click', () => this.openEmojiPicker());
+                }
+                if (this.closeEmojiPickerBtn) {
+                    this.closeEmojiPickerBtn.addEventListener('click', () => this.closeEmojiPicker());
+                }
+                // Insertar emoji seleccionado
+                if (this.emojiPicker) {
+                    this.emojiPicker.addEventListener('emoji-click', (event) => {
+                        const unicode = event.detail.unicode;
+                        this.insertEmoji(unicode);
+                    });
+                }
+
+                // Una vez que el documento ha cargado completamente, procesar emojis con Twemoji
+                // en elementos estáticos de la interfaz (encabezado, barra de herramientas,
+                // controles y mensajes).  No procesamos el área de texto editable para que
+                // los usuarios sigan viendo los caracteres emoji originales mientras
+                // escriben.
+                const self = this;
+                window.addEventListener('load', () => {
+                    try {
+                        if (window.twemoji) {
+                            const staticElements = document.querySelectorAll('header, .toolbar, .controls, .status-bar, .settings-panel, .shortcut-panel, .emoji-picker');
+                            const options = self.getEmojiOptions ? self.getEmojiOptions() : { folder: 'svg', ext: '.svg' };
+                            staticElements.forEach(el => {
+                                twemoji.parse(el, options);
+                            });
+                        }
+                    } catch (err) {
+                        console.warn('No se pudo inicializar Twemoji:', err);
+                    }
+                });
             }
 
-            // Funcionalidades principales
+            /* Carga preferencias del almacenamiento local */
+            loadPreferences() {
+                const theme = localStorage.getItem('theme');
+                const fontSize = localStorage.getItem('fontSize');
+                const fontFamily = localStorage.getItem('fontFamily');
+                const textAlign = localStorage.getItem('textAlign');
+                const mirror = localStorage.getItem('mirrorMode');
+                const autoSave = localStorage.getItem('autoSave');
+                const resume = localStorage.getItem('resumePosition');
+                const highlight = localStorage.getItem('highlightReading');
+                const interfaceMode = localStorage.getItem('interfaceMode');
+                const highlightColor = localStorage.getItem('highlightColor');
+                if (theme) this.currentTheme = theme;
+                if (fontSize) this.fontSize = parseInt(fontSize);
+                if (fontFamily) this.fontFamily = fontFamily;
+                if (textAlign) this.textAlign = textAlign;
+                if (mirror) this.mirrorMode = mirror === 'true';
+                if (autoSave) this.autoSave = autoSave === 'true';
+                if (resume) this.resumePosition = resume === 'true';
+                if (highlight) this.highlightReading = highlight === 'true';
+                if (interfaceMode) this.interfaceMode = interfaceMode;
+                if (highlightColor) this.highlightColor = highlightColor;
+            }
+
+            /* Guarda una preferencia en localStorage */
+            savePreference(key, value) {
+                localStorage.setItem(key, value);
+            }
+
+            /* Aplica las preferencias cargadas al iniciar */
+            applyPreferences() {
+                this.applyTheme();
+                this.setFontSize(this.fontSize);
+                this.setFontFamily(this.fontFamily);
+                this.setTextAlign(this.textAlign);
+                if (this.mirrorMode) {
+                    this.teleprompter.classList.add('mirror-mode');
+                    this.mirrorModeBtn.textContent = '🪞 Modo normal';
+                }
+                this.speedSlider.value = this.speed;
+                this.speedValue.textContent = this.speed + 'ms';
+                this.autoSaveCheckbox.checked = this.autoSave;
+                this.resumePositionCheckbox.checked = this.resumePosition;
+                this.highlightToggle.checked = this.highlightReading;
+                // Seleccionar color del tema actual
+                this.colorOptions.forEach(opt => {
+                    opt.classList.toggle('selected', opt.dataset.theme === this.currentTheme);
+                });
+
+                // Aplicar el modo de interfaz (profesional/amigable)
+                this.setInterfaceMode(this.interfaceMode || 'professional');
+
+                // Aplicar color de resaltado guardado
+                if (this.highlightColor) {
+                    this.setHighlightColor(this.highlightColor);
+                } else {
+                    // Si no hay color guardado, obtén el valor actual de CSS
+                    const root = getComputedStyle(document.documentElement);
+                    const defaultHighlight = root.getPropertyValue('--highlight').trim();
+                    this.highlightColor = defaultHighlight;
+                    this.setHighlightColor(defaultHighlight);
+                }
+            }
+
+            /* Gestiona cambios de texto */
             updateText() {
                 const text = this.manualText.value;
-                this.sentences = text.split(/[.!?]+\s*/).filter(s => s.trim());
-                this.startButton.disabled = !text.trim();
-                this.updateStatus();
+                // Dividir por saltos de párrafo o fin de frase. Permitimos saltos de línea.
+                this.sentences = text.split(/\n|(?<=[.!?])\s+/).filter(s => s.trim());
+                this.startButton.disabled = !this.sentences.length;
+                this.updateStatus(this.sentences.length ? 'Texto cargado' : 'Listo');
+                // Actualizar tiempo restante basado en el nuevo texto
+                const totalChars = this.sentences.reduce((acc, s) => acc + s.length, 0);
+                this.updateRemainingTime(totalChars, 0);
             }
 
+            /* Comienza la lectura del teleprompter */
             start() {
                 if (!this.sentences.length) return;
-                
                 this.isRunning = true;
                 this.isPaused = false;
-                this.updateControls();
-                this.animate();
-            }
+                this.startButton.disabled = true;
+                this.pauseButton.disabled = false;
+                this.stopButton.disabled = false;
+                this.updateStatus('Leyendo…');
+                // Calcular caracteres totales y actualizar el tiempo restante al iniciar
+                this.totalChars = this.sentences.reduce((acc, s) => acc + s.length, 0);
+                this.updateRemainingTime(this.totalChars, 0);
 
-            togglePause() {
-                this.isPaused = !this.isPaused;
-                this.pauseButton.textContent = this.isPaused ? '▶️ Reanudar' : '⏸️ Pausar';
-                if (!this.isPaused) this.animate();
-            }
-
-            stop() {
-                this.isRunning = false;
-                this.currentIndex = 0;
-                this.currentCharIndex = 0;
-                this.teleprompter.textContent = '';
-                this.updateControls();
-                this.updateStatus('Listo');
-            }
-
-            adjustSpeed(delta) {
-                this.speed = Math.max(50, Math.min(500, this.speed + delta));
-                this.speedValue.textContent = this.speed;
-                this.updateStatus(`Velocidad: ${this.speed}ms`);
-                // Actualizar inmediatamente la velocidad de animación
-                if (this.animationFrame) {
-                    clearTimeout(this.animationFrame);
+                // Si se retoma desde una posición anterior
+                if (this.resumePosition && this.currentIndex > 0) {
+                    this.animate();
+                } else {
+                    this.currentIndex = 0;
+                    this.currentCharIndex = 0;
+                    this.teleprompter.innerHTML = '';
+                    this.progressBar.style.width = '0%';
                     this.animate();
                 }
             }
 
+            /* Pausar/reanudar */
+            togglePause() {
+                if (!this.isRunning) return;
+                this.isPaused = !this.isPaused;
+                this.pauseButton.textContent = this.isPaused ? '▶️ Reanudar' : '⏸️ Pausar';
+                this.updateStatus(this.isPaused ? 'Pausado' : 'Leyendo…');
+                if (!this.isPaused) {
+                    this.animate();
+                }
+            }
+
+            /* Detener la lectura */
+            stop() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentIndex = 0;
+                this.currentCharIndex = 0;
+                this.teleprompter.innerHTML = '';
+                this.progressBar.style.width = '0%';
+                this.updateStatus('Detenido');
+                this.startButton.disabled = false;
+                this.pauseButton.disabled = true;
+                this.stopButton.disabled = true;
+                this.pauseButton.textContent = '⏸️ Pausar';
+            }
+
+            /* Ajusta la velocidad mediante botones */
+            adjustSpeed(delta) {
+                let newSpeed = this.speed + delta;
+                newSpeed = Math.max(50, Math.min(500, newSpeed));
+                this.setSpeed(newSpeed);
+            }
+
+            /* Establece la velocidad desde el deslizador */
+            setSpeed(value) {
+                this.speed = value;
+                this.speedSlider.value = value;
+                this.speedValue.textContent = value + 'ms';
+                this.updateStatus('Velocidad: ' + value + 'ms');
+                // Actualizar tiempo restante en función de la nueva velocidad
+                this.updateRemainingTime();
+            }
+
+            /* Animación de escritura */
             animate() {
                 if (!this.isRunning || this.isPaused) return;
-
                 if (this.currentIndex >= this.sentences.length) {
                     this.stop();
                     return;
                 }
-
                 const sentence = this.sentences[this.currentIndex];
                 if (this.currentCharIndex < sentence.length) {
                     this.currentCharIndex++;
                 } else {
+                    // Hemos terminado la frase actual.  Preparar transición
+                    // para la siguiente frase: ocultar el texto para que
+                    // aparezca con un efecto de desvanecimiento al comenzar
+                    // la nueva frase.
+                    this.teleprompter.style.opacity = 0;
                     this.currentIndex++;
                     this.currentCharIndex = 0;
+                    if (this.currentIndex >= this.sentences.length) {
+                        this.stop();
+                        return;
+                    }
+                }
+                // Actualizar texto con o sin resaltado
+                if (this.highlightReading) {
+                    const typed = sentence.substring(0, this.currentCharIndex);
+                    const remaining = sentence.substring(this.currentCharIndex);
+                    this.teleprompter.innerHTML = `<span class="highlighted">${typed}</span>${remaining}`;
+                } else {
+                    this.teleprompter.textContent = sentence.substring(0, this.currentCharIndex);
                 }
 
-                this.teleprompter.textContent = sentence.substring(0, this.currentCharIndex);
-                this.teleprompter.scrollTop = this.teleprompter.scrollHeight;
-
+                // Al iniciar una nueva frase (primer carácter) mostrar el texto con
+                // una animación de desvanecimiento.  La opacidad se restaura a 1
+                // inmediatamente, activando la transición definida en CSS.
+                if (this.currentCharIndex === 1) {
+                    // Utilizamos requestAnimationFrame para asegurarnos de que el
+                    // cambio de opacidad se ejecute en un cuadro separado y así
+                    // dispare la animación correctamente.
+                    requestAnimationFrame(() => {
+                        this.teleprompter.style.opacity = 1;
+                    });
+                }
+                // Procesar emojis en el texto mostrado.  Utilizamos
+                // diferentes conjuntos según el tema actual (Twemoji u OpenMoji).
+                try {
+                    if (window.twemoji) {
+                        twemoji.parse(this.teleprompter, this.getEmojiOptions());
+                    }
+                } catch (err) {
+                    // Silenciar errores de Twemoji
+                }
+                // Desplazar suavemente hasta el final del contenido para que el usuario
+                // siempre vea la parte que se está leyendo.  El comportamiento
+                // 'smooth' se aplica gracias a la propiedad CSS scroll-behavior.
+                this.teleprompter.scrollTo({ top: this.teleprompter.scrollHeight, behavior: 'smooth' });
+                // Actualizar progreso
+                const totalChars = this.sentences.reduce((acc, s) => acc + s.length, 0);
+                const charsBefore = this.sentences.slice(0, this.currentIndex).reduce((acc, s) => acc + s.length, 0);
+                const currentProgress = charsBefore + this.currentCharIndex;
+                const percent = totalChars ? (currentProgress / totalChars) * 100 : 0;
+                this.progressBar.style.width = percent.toFixed(2) + '%';
+                // Actualizar tiempo restante
+                this.updateRemainingTime(totalChars, currentProgress);
+                // Continuar animación
                 this.animationFrame = setTimeout(() => this.animate(), this.speed);
             }
 
-            // Funcionalidades de la herramienta
+            /* Crear un nuevo archivo */
             newFile() {
+                if (this.manualText.value.trim() && !confirm('¿Deseas descartar el texto actual?')) return;
                 this.manualText.value = '';
                 this.updateText();
+                this.stop();
                 this.updateStatus('Nuevo archivo creado');
+                // Reiniciar tiempo restante
+                this.updateRemainingTime(0, 0);
             }
 
+            /* Abrir un archivo de texto */
             openFile() {
                 const fileInput = document.createElement('input');
                 fileInput.type = 'file';
                 fileInput.accept = '.txt';
-                
                 fileInput.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                        const text = await file.text();
-                        this.manualText.value = text;
-                        this.updateText();
-                        this.updateStatus(`Archivo abierto: ${file.name}`);
-                    }
+                    if (!file) return;
+                    const text = await file.text();
+                    this.manualText.value = text;
+                    this.updateText();
+                    this.stop();
+                    this.updateStatus('Archivo abierto: ' + file.name);
+                    // Actualizar tiempo restante con el nuevo archivo
+                    const totalChars = this.sentences.reduce((acc, s) => acc + s.length, 0);
+                    this.updateRemainingTime(totalChars, 0);
                 });
-                
                 fileInput.click();
             }
 
-            async saveFile() {
+            /* Guardar el archivo */
+            saveFile() {
                 const text = this.manualText.value;
                 if (!text.trim()) return;
-                
                 const blob = new Blob([text], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'teleprompter-script.txt';
+                a.download = 'teleprompter_script.txt';
                 a.click();
-                
                 this.updateStatus('Archivo guardado');
             }
 
+            /* Contar palabras */
             showWordCount() {
-                const text = this.manualText.value;
-                const wordCount = text.split(/\s+/).filter(word => word.trim()).length;
-                alert(`Contador de Palabras: ${wordCount}`);
+                const text = this.manualText.value.trim();
+                const words = text.split(/\s+/).filter(w => w);
+                alert('Palabras: ' + words.length);
             }
 
-            // Funciones de configuración
-            openSettings() {
-                this.settingsOverlay.style.display = 'flex';
-                this.fontSizeControl.value = this.fontSize;
-                this.autoSaveCheckbox.checked = this.autoSave;
-                this.resumePositionCheckbox.checked = this.resumePosition;
-                document.querySelector(`.color-option[data-theme="${this.currentTheme}"]`).classList.add('selected');
-            }
-
-            closeSettings() {
-                this.settingsOverlay.style.display = 'none';
-                this.applyTheme();
-            }
-
-            saveSettings() {
-                this.autoSave = this.autoSaveCheckbox.checked;
-                this.resumePosition = this.resumePositionCheckbox.checked;
-                this.closeSettings();
-                this.updateStatus('Configuración guardada');
-            }
-
-            setTheme(theme) {
-                this.currentTheme = theme;
-                this.colorOptions.forEach(option => {
-                    option.classList.toggle('selected', option.dataset.theme === theme);
-                });
-                this.applyTheme();
-                // Guardar preferencia en localStorage
-                localStorage.setItem('theme', theme);
-            }
-
-            applyTheme() {
-                const theme = this.currentTheme;
-                if (theme === 'dark') {
-                    document.documentElement.style.setProperty('--background', '#212121');
-                    document.documentElement.style.setProperty('--surface', '#333333');
-                    document.documentElement.style.setProperty('--text-primary', '#FFFFFF');
-                    document.documentElement.style.setProperty('--text-secondary', '#B0B0B0');
-                } else if (theme === 'light') {
-                    document.documentElement.style.setProperty('--background', '#F5F5F5');
-                    document.documentElement.style.setProperty('--surface', '#FFFFFF');
-                    document.documentElement.style.setProperty('--text-primary', '#333333');
-                    document.documentElement.style.setProperty('--text-secondary', '#757575');
-                }
-                this.updateStatus(`Tema aplicado: ${this.currentTheme}`);
-            }
-
-            setFontSize(size) {
-                this.fontSize = size;
-                this.teleprompter.style.fontSize = `${size}px`;
-                this.updateStatus(`Tamaño de fuente: ${size}px`);
-                // Guardar preferencia en localStorage
-                localStorage.setItem('fontSize', size);
-            }
-
+            /* Modo espejo */
             toggleMirrorMode() {
                 this.mirrorMode = !this.mirrorMode;
-                this.teleprompter.classList.toggle('mirror-mode');
-                this.mirrorModeBtn.textContent = this.mirrorMode ? '🪞 Modo Normal' : '🪞 Modo Espejo';
-                this.updateStatus(`Modo espejo: ${this.mirrorMode ? 'Activado' : 'Desactivado'}`);
-                // Guardar preferencia en localStorage
-                localStorage.setItem('mirrorMode', this.mirrorMode);
+                this.teleprompter.classList.toggle('mirror-mode', this.mirrorMode);
+                this.mirrorModeBtn.textContent = this.mirrorMode ? '🪞 Modo normal' : '🪞 Modo espejo';
+                // Alternar clase activa para reflejar visualmente el estado del botón
+                this.mirrorModeBtn.classList.toggle('active', this.mirrorMode);
+                this.updateStatus(this.mirrorMode ? 'Modo espejo activado' : 'Modo espejo desactivado');
+                this.savePreference('mirrorMode', this.mirrorMode);
             }
 
-            // Funciones auxiliares
-            updateControls() {
-                this.startButton.disabled = this.isRunning;
-                this.pauseButton.disabled = !this.isRunning;
-                this.stopButton.disabled = !this.isRunning;
-                // Solucionar el estado del botón de pausa al iniciar
-                if (this.isRunning && !this.isPaused) {
-                    this.pauseButton.disabled = false;
-                }
-            }
-
-            updateStatus(message = 'Listo') {
-                this.statusText.textContent = message;
-            }
-
-            loadSettings() {
-                const savedTheme = localStorage.getItem('theme');
-                const savedFontSize = localStorage.getItem('fontSize');
-                const savedMirrorMode = localStorage.getItem('mirrorMode');
-                if (savedTheme) this.currentTheme = savedTheme;
-                if (savedFontSize) this.fontSize = parseInt(savedFontSize);
-                if (savedMirrorMode) this.mirrorMode = savedMirrorMode === 'true';
-                // ...otros valores por defecto...
-                this.autoSave = true;
-                this.resumePosition = true;
-            }
-
-            handleBeforeUnload(e) {
-                if (this.autoSave) this.saveFile();
-            }
-
-            // Funciones de pantalla completa
+            /* Pantalla completa */
             toggleFullscreen() {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen();
@@ -778,29 +1394,456 @@
                 }
             }
 
-            fixMobileScroll() {
-                // Prevenir el comportamiento de desplazamiento del cuerpo durante el desplazamiento del teleprompter
-                document.body.style.overflow = 'hidden';
-                document.documentElement.style.overflow = 'hidden';
-                // Habilitar el desplazamiento suave para el panel del teleprompter
-                if (this.teleprompter && this.teleprompter.parentNode) {
-                    this.teleprompter.parentNode.style.overflowY = 'auto';
-                    this.teleprompter.parentNode.style.webkitOverflowScrolling = 'touch';
+            /* Tema de color */
+            setTheme(theme) {
+                this.currentTheme = theme;
+                this.applyTheme();
+                this.savePreference('theme', theme);
+                // Destacar la opción seleccionada
+                this.colorOptions.forEach(opt => {
+                    opt.classList.toggle('selected', opt.dataset.theme === theme);
+                });
+            }
+
+            applyTheme() {
+                // Establece el atributo data-theme para que las variables CSS definidas en el
+                // archivo de estilos se apliquen automáticamente.  Las variables de
+                // color primario y secundario permanecen determinadas por el modo de
+                // interfaz (profesional o amigable).
+                document.body.setAttribute('data-theme', this.currentTheme);
+                this.updateStatus('Tema aplicado: ' + this.currentTheme);
+                // Reprocesar emojis sólo dentro del teleprompter después de
+                // cambiar el tema.  Utilizamos diferentes conjuntos de
+                // emojis según el tema: Twemoji para los modos estándar y
+                // OpenMoji para el modo nostálgico.
+                try {
+                    if (window.twemoji) {
+                        twemoji.parse(this.teleprompter, this.getEmojiOptions());
+                    }
+                } catch (err) {
+                    /* ignorar errores de Twemoji */
+                }
+                // Para ciertos estilos como accent-color, las variables definidas en
+                // :root se utilizan en lugar de las variables de body.  Copiamos
+                // los colores definidos en el cuerpo al elemento raíz para que
+                // actualicen correctamente los controles como el deslizador de
+                // velocidad cuando se cambia de tema.  Al leer desde
+                // getComputedStyle obtenemos el valor actual de --color-primary.
+                const computedStyles = getComputedStyle(document.body);
+                const primary = computedStyles.getPropertyValue('--color-primary').trim();
+                const secondary = computedStyles.getPropertyValue('--color-secondary').trim();
+                const highlight = computedStyles.getPropertyValue('--highlight').trim();
+                const borderRadius = computedStyles.getPropertyValue('--border-radius').trim();
+                const controlHeight = computedStyles.getPropertyValue('--control-height').trim();
+                const docEl = document.documentElement;
+                if (primary) docEl.style.setProperty('--color-primary', primary);
+                if (secondary) docEl.style.setProperty('--color-secondary', secondary);
+                if (highlight) docEl.style.setProperty('--highlight', highlight);
+                if (borderRadius) docEl.style.setProperty('--border-radius', borderRadius);
+                if (controlHeight) docEl.style.setProperty('--control-height', controlHeight);
+
+                // Vuelve a procesar los iconos estáticos (encabezado, barra de
+                // herramientas, controles, paneles) con el conjunto de
+                // emojis adecuado para el tema actual.  De esta manera,
+                // los emojis de botones y textos fuera del teleprompter
+                // también cambian cuando se selecciona el tema nostálgico.
+                this.reparseStaticIcons();
+            }
+
+            /**
+             * Devuelve las opciones de configuración de Twemoji en función
+             * del tema actual.  Para el modo nostálgico utilizamos las
+             * imágenes de OpenMoji (versión 2.0.0), que ofrecen un aspecto
+             * retro y simplificado.  Para los demás temas se utilizan
+             * las imágenes estándar de Twemoji con el conjunto de SVG.
+             *
+             * @returns {Object} Opciones a pasar a twemoji.parse
+             */
+            getEmojiOptions() {
+                if (this.currentTheme === 'nostalgic') {
+                    /*
+                     * Para el tema nostálgico utilizamos el conjunto
+                     * OpenMoji.  Twemoji por defecto utiliza nombres de
+                     * archivos en minúsculas, mientras que OpenMoji utiliza
+                     * letras mayúsculas para sus nombres de archivo.  Para
+                     * resolver esta discrepancia definimos una función
+                     * callback que construye la URL manualmente
+                     * transformando el código en mayúsculas.  También
+                     * devolvemos un objeto sin base/folder/ext para que
+                     * Twemoji recurra exclusivamente a la URL generada por
+                     * callback.
+                     */
+                    return {
+                        callback: (icon, options) => {
+                            // Convertir a mayúsculas y construir la URL
+                            return `https://cdn.jsdelivr.net/npm/@svgmoji/openmoji@2.0.0/svg/${icon.toUpperCase()}.svg`;
+                        }
+                    };
+                }
+                // Conjunto estándar de Twemoji en formato SVG
+                return { folder: 'svg', ext: '.svg' };
+            }
+
+            /* Establece un color personalizado para el resaltado de texto */
+            setHighlightColor(color) {
+                this.highlightColor = color;
+                // Actualizar la variable CSS para que afecte a .highlighted
+                document.documentElement.style.setProperty('--highlight', color);
+                // Actualizar input si existe
+                if (this.highlightColorInput) {
+                    this.highlightColorInput.value = color;
+                }
+                // Guardar la preferencia
+                this.savePreference('highlightColor', color);
+                this.updateStatus('Color de resaltado actualizado');
+            }
+
+            /* Fuente y tamaño */
+            setFontSize(size) {
+                this.fontSize = size;
+                this.teleprompter.style.fontSize = size + 'px';
+                this.fontSizeControl.value = size;
+                this.savePreference('fontSize', size);
+                this.updateStatus('Tamaño de fuente: ' + size);
+            }
+
+            setFontFamily(family) {
+                this.fontFamily = family;
+                if (family === 'default') {
+                    this.teleprompter.style.fontFamily = '';
+                } else {
+                    this.teleprompter.style.fontFamily = family;
+                }
+                this.savePreference('fontFamily', family);
+                this.updateStatus('Familia tipográfica: ' + (family === 'default' ? 'Sistema' : family));
+            }
+
+            setTextAlign(align) {
+                this.textAlign = align;
+                this.teleprompter.style.textAlign = align;
+                this.savePreference('textAlign', align);
+                this.updateStatus('Alineación: ' + align);
+            }
+
+            /* Modo de interfaz (profesional/amigable) */
+            setInterfaceMode(mode) {
+                // Guardamos el modo y lo aplicamos al atributo data-mode del cuerpo
+                this.interfaceMode = mode;
+                document.body.setAttribute('data-mode', mode);
+                // Actualizar selector si existe
+                if (this.interfaceModeSelect) {
+                    this.interfaceModeSelect.value = mode;
+                }
+                // Persistir preferencia
+                this.savePreference('interfaceMode', mode);
+                // Informar al usuario
+                const nombre = mode === 'friendly' ? 'Amigable' : 'Profesional';
+                this.updateStatus('Modo de interfaz: ' + nombre);
+                // Reprocesar emojis, ya que algunos iconos pueden haberse
+                // modificado según el modo (por ejemplo, tamaños).
+                this.reparseStaticIcons();
+            }
+
+            /**
+             * Procesa nuevamente los emojis en las áreas estáticas de la
+             * interfaz.  Se evita procesar el área editable (manualText)
+             * para que los caracteres emoji permanezcan visibles y
+             * editables.  Utiliza el conjunto correspondiente según
+             * getEmojiOptions().
+             */
+            reparseStaticIcons() {
+                if (!window.twemoji) return;
+                const options = this.getEmojiOptions();
+                try {
+                    // Elementos estáticos a procesar: encabezado, barra de
+                    // herramientas, controles, barra de estado, paneles de
+                    // configuración, ayuda y contenedores similares.  No
+                    // incluimos manualText para no reemplazar emojis dentro
+                    // del textarea.
+                    const staticEls = document.querySelectorAll('header, .toolbar, .controls, .status-bar, .settings-panel, .shortcut-panel, .settings-panel .btn, .color-picker, .progress-bar, .emoji-picker');
+                    staticEls.forEach(el => {
+                        twemoji.parse(el, options);
+                    });
+                } catch (err) {
+                    /* silencioso */
                 }
             }
 
-            // Aplicar preferencias persistidas (tema, tamaño de fuente, modo espejo)
-            applyPersistedPreferences() {
-                this.setFontSize(this.fontSize);
-                if (this.mirrorMode) {
-                    this.teleprompter.classList.add('mirror-mode');
-                    this.mirrorModeBtn.textContent = '🪞 Modo Normal';
+            /* Configuración: abrir, aplicar, cerrar */
+            openSettings() {
+                // Mostrar el panel de configuración activando la superposición
+                // y su animación asociada.  La clase 'active' controla la
+                // visibilidad y las transiciones definidas en CSS.
+                this.settingsOverlay.classList.add('active');
+                // Sincronizar controles con valores actuales
+                this.fontSizeControl.value = this.fontSize;
+                this.fontFamilySelect.value = this.fontFamily;
+                this.textAlignSelect.value = this.textAlign;
+                this.highlightToggle.checked = this.highlightReading;
+                this.autoSaveCheckbox.checked = this.autoSave;
+                this.resumePositionCheckbox.checked = this.resumePosition;
+                // Sincronizar modo de interfaz
+                if (this.interfaceModeSelect) {
+                    this.interfaceModeSelect.value = this.interfaceMode;
                 }
+
+                // Sincronizar el color de resaltado con el valor actual
+                if (this.highlightColorInput) {
+                    this.highlightColorInput.value = this.highlightColor || getComputedStyle(document.documentElement).getPropertyValue('--highlight').trim();
+                }
+            }
+
+            closeSettings() {
+                // Iniciar animación de salida en el panel antes de ocultarlo.
+                const panel = this.settingsOverlay.querySelector('.settings-panel');
+                if (panel) {
+                    panel.style.animation = 'slideDownFade 0.4s forwards';
+                }
+                // Después de la animación, eliminar la clase 'active' y
+                // restablecer la animación para la próxima vez.
+                setTimeout(() => {
+                    if (panel) {
+                        panel.style.animation = '';
+                    }
+                    this.settingsOverlay.classList.remove('active');
+                }, 400);
+            }
+
+            applySettings() {
+                this.autoSave = this.autoSaveCheckbox.checked;
+                this.resumePosition = this.resumePositionCheckbox.checked;
+                this.highlightReading = this.highlightToggle.checked;
+                // Guardar preferencia en localStorage
+                this.savePreference('autoSave', this.autoSave);
+                this.savePreference('resumePosition', this.resumePosition);
+                this.savePreference('highlightReading', this.highlightReading);
+                // Guardar el modo de interfaz actualmente seleccionado
+                if (this.interfaceModeSelect) {
+                    this.setInterfaceMode(this.interfaceModeSelect.value);
+                }
+
+                // Guardar el color de resaltado seleccionado
+                if (this.highlightColorInput) {
+                    this.setHighlightColor(this.highlightColorInput.value);
+                }
+                this.closeSettings();
+                this.updateStatus('Preferencias guardadas');
+                // Reprocesar únicamente los iconos estáticos con el nuevo
+                // conjunto de emojis y evitar convertir el área de texto
+                // editable.  Esto garantiza que los emojis de los botones
+                // cambien según el tema o modo seleccionado.
+                this.reparseStaticIcons();
+            }
+
+            /* Panel de ayuda */
+            toggleHelp() {
+                if (this.shortcutOverlay.style.display === 'flex') {
+                    this.hideHelp();
+                } else {
+                    // Mostrar con animación
+                    this.shortcutOverlay.style.display = 'flex';
+                    this.shortcutOverlay.style.opacity = '0';
+                    requestAnimationFrame(() => {
+                        this.shortcutOverlay.style.opacity = '1';
+                    });
+                }
+            }
+
+            hideHelp() {
+                // Ocultar con desvanecimiento
+                this.shortcutOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    this.shortcutOverlay.style.display = 'none';
+                }, 300);
+            }
+
+            /* Gestión de teclas globales */
+            handleKeydown(event) {
+                // Si hay un textarea, input o panel de configuración/emojis abierto, ignorar atajos generales
+                const isTextInput = event.target.tagName === 'TEXTAREA' || event.target.tagName === 'INPUT';
+                const settingsOpen = this.settingsOverlay.classList.contains('active');
+                const emojiOpen = this.emojiPickerOverlay.classList.contains('active');
+                if (isTextInput || settingsOpen || emojiOpen) {
+                    // Permitir cerrar paneles con Escape aunque haya inputs activos
+                    if (event.key === 'Escape') {
+                        if (settingsOpen) {
+                            this.closeSettings();
+                        }
+                        if (emojiOpen) {
+                            this.closeEmojiPicker();
+                        }
+                    }
+                    // No continuar con atajos si estamos en una entrada de texto o hay paneles abiertos
+                    return;
+                }
+                switch (event.key) {
+                    case ' ': // Espacio
+                        event.preventDefault();
+                        this.togglePause();
+                        break;
+                    case 'ArrowUp':
+                        event.preventDefault();
+                        this.adjustSpeed(-20);
+                        break;
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        this.adjustSpeed(20);
+                        break;
+                    case 'ArrowLeft':
+                        event.preventDefault();
+                        this.navigateSentence(-1);
+                        break;
+                    case 'ArrowRight':
+                        event.preventDefault();
+                        this.navigateSentence(1);
+                        break;
+                    case 'm':
+                    case 'M':
+                        this.toggleMirrorMode();
+                        break;
+                    case 'f':
+                    case 'F':
+                        this.toggleFullscreen();
+                        break;
+                    case 's':
+                    case 'S':
+                        this.openSettings();
+                        break;
+                    case 'n':
+                    case 'N':
+                        this.newFile();
+                        break;
+                    case 'o':
+                    case 'O':
+                        this.openFile();
+                        break;
+                    case 'g':
+                    case 'G':
+                        this.saveFile();
+                        break;
+                    case 'w':
+                    case 'W':
+                        this.showWordCount();
+                        break;
+                    case '?':
+                        this.toggleHelp();
+                        break;
+                    case 'Escape':
+                        this.hideHelp();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            /* Navegación manual entre frases */
+            navigateSentence(step) {
+                if (!this.sentences.length) return;
+                this.currentIndex = Math.max(0, Math.min(this.sentences.length - 1, this.currentIndex + step));
+                this.currentCharIndex = 0;
+                this.updateStatus('Salto manual a la frase ' + (this.currentIndex + 1));
+                this.animate();
+            }
+
+            /* Actualiza la barra de estado */
+            updateStatus(message) {
+                this.statusText.textContent = message;
+            }
+
+            /**
+             * Actualiza el indicador de tiempo restante en función del número total
+             * de caracteres y el progreso actual. Si se omiten los parámetros,
+             * se calcularán automáticamente usando las frases cargadas.
+             * El tiempo restante se estima multiplicando los caracteres que
+             * faltan por la velocidad de escritura (this.speed). Se muestra
+             * en formato mm:ss.
+             */
+            updateRemainingTime(totalChars = null, currentProgress = null) {
+                if (!this.timeRemainingSpan) return;
+                // Calcular total y progreso si no se proporcionan
+                if (totalChars === null) {
+                    totalChars = this.sentences.reduce((acc, s) => acc + s.length, 0);
+                }
+                if (currentProgress === null) {
+                    const charsBefore = this.sentences.slice(0, this.currentIndex).reduce((acc, s) => acc + s.length, 0);
+                    currentProgress = charsBefore + this.currentCharIndex;
+                }
+                const remainingChars = Math.max(0, totalChars - currentProgress);
+                // Convertir a milisegundos: cada carácter tarda this.speed ms
+                const remainingMs = remainingChars * this.speed;
+                const totalSeconds = Math.ceil(remainingMs / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                this.timeRemainingSpan.textContent = formatted;
+            }
+
+            /**
+             * Abre el selector de emojis mostrando la superposición. La
+             * superposición comparte estilos con el panel de configuración para
+             * mantener coherencia visual. Mientras el panel esté visible, se
+             * desactivan otras interacciones globales (por ejemplo, atajos).
+             */
+            openEmojiPicker() {
+                if (this.emojiPickerOverlay) {
+                    this.emojiPickerOverlay.classList.add('active');
+                }
+            }
+
+            /**
+             * Cierra la superposición del selector de emojis.
+             */
+            closeEmojiPicker() {
+                if (this.emojiPickerOverlay) {
+                    // Animación de salida similar a la configuración
+                    const panel = this.emojiPickerOverlay.querySelector('.settings-panel');
+                    if (panel) {
+                        panel.style.animation = 'slideDownFade 0.4s forwards';
+                    }
+                    setTimeout(() => {
+                        if (panel) {
+                            panel.style.animation = '';
+                        }
+                        this.emojiPickerOverlay.classList.remove('active');
+                    }, 400);
+                }
+            }
+
+            /**
+             * Inserta el emoji seleccionado en la posición actual del cursor
+             * dentro del cuadro de texto manual (manualText). Después de
+             * insertar, actualiza el texto para reflejar el cambio y cierra
+             * la superposición. También se restaura la posición del cursor
+             * para que el usuario pueda seguir escribiendo de forma fluida.
+             * @param {string} unicode Emoji en formato Unicode a insertar
+             */
+            insertEmoji(unicode) {
+                const el = this.manualText;
+                if (!el) return;
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                const text = el.value;
+                // Construir el nuevo texto
+                el.value = text.slice(0, start) + unicode + text.slice(end);
+                // Colocar el cursor después del emoji insertado
+                const pos = start + unicode.length;
+                el.selectionStart = el.selectionEnd = pos;
+                // Notificar cambio de contenido
+                el.dispatchEvent(new Event('input'));
+                // Actualizar teleprompter
+                this.updateText();
+                this.updateStatus('Emoji insertado');
+                // Cerrar panel
+                this.closeEmojiPicker();
             }
         }
 
-        // Inicialización
-        const teleprompter = new TeleprompterPro();
+        // Inicializar al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new TeleprompterPro();
+            // Exponer app en global para depuración (opcional)
+            window.teleprompterApp = app;
+        });
     </script>
 </body>
 </html>
